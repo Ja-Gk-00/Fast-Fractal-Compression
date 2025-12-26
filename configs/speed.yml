@@ -1,0 +1,27 @@
+encode:
+  max_block: 16
+  min_block: 16
+  stride: 8
+  quadtree: false
+  max_mse: 0.0025
+
+  buckets: 8
+  s_sets: true
+
+  quantize: true
+  s_clip: 0.95
+  o_min: -0.25
+  o_max: 1.25
+
+  backend: pca_lsh
+  pca_dim: 16
+  lsh_planes: 16
+  lsh_budget: 1024
+  topk: 24
+
+  entropy_thresh: 0.02
+  max_domains: 4000
+  seed: 0
+
+decode:
+  iters: 8
