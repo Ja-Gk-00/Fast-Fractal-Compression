@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import inspect
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
@@ -87,7 +87,8 @@ def _filter_kwargs(fn: object, kwargs: dict[str, object]) -> dict[str, object]:
     allowed = {
         k
         for k, p in sig.parameters.items()
-        if p.kind in (inspect.Parameter.KEYWORD_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
+        if p.kind
+        in (inspect.Parameter.KEYWORD_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
     }
     return {k: v for k, v in kwargs.items() if k in allowed}
 
@@ -136,7 +137,11 @@ def _load_img(p: Path, mode: Literal["L", "RGB"], max_side: int) -> NDArray[np.f
         else:
             nh = max_side
             nw = max(1, int(round(w * (max_side / float(h)))))
-        resample = Image.Resampling.BILINEAR if hasattr(Image, "Resampling") else Image.BILINEAR
+        resample = (
+            Image.Resampling.BILINEAR
+            if hasattr(Image, "Resampling")
+            else Image.BILINEAR
+        )
         im = im.resize((nw, nh), resample=resample)
 
     a = np.asarray(im, dtype=np.uint8)
@@ -171,15 +176,15 @@ def _assert_reconstruction(src: NDArray[np.float32], rec: NDArray[np.float32]) -
 @pytest.mark.parametrize("img_path", IMAGE_PATHS, ids=lambda p: Path(p).name)
 @pytest.mark.parametrize("mode", ["L", "RGB"])
 @pytest.mark.parametrize("shape_case", ["as_is", "non_multiple"])
-@pytest.mark.parametrize("preset", PRESETS, ids=lambda p: getattr(p, "name"))
+@pytest.mark.parametrize("preset", PRESETS, ids=lambda p: p.name)
 def test_integration_encode_decode_array(
     img_path: Path,
     mode: Literal["L", "RGB"],
     shape_case: Literal["as_is", "non_multiple"],
     preset: Preset,
 ) -> None:
-    from fastfractal.core.encode import encode_array
     from fastfractal.core.decode import decode_array
+    from fastfractal.core.encode import encode_array
 
     x = _load_img(img_path, mode=mode, max_side=160)
     if shape_case == "non_multiple":
@@ -192,15 +197,19 @@ def test_integration_encode_decode_array(
     if mode == "L" and rec.ndim == 3 and rec.shape[2] == 1:
         rec = rec[:, :, 0].astype(np.float32, copy=False)
 
-    _assert_reconstruction(x.astype(np.float32, copy=False), rec.astype(np.float32, copy=False))
+    _assert_reconstruction(
+        x.astype(np.float32, copy=False), rec.astype(np.float32, copy=False)
+    )
 
 
 @pytest.mark.parametrize("img_path", IMAGE_PATHS, ids=lambda p: Path(p).name)
-@pytest.mark.parametrize("preset", PRESETS, ids=lambda p: getattr(p, "name"))
-def test_integration_encode_decode_file_pipeline(img_path: Path, preset: Preset, tmp_path: Path) -> None:
+@pytest.mark.parametrize("preset", PRESETS, ids=lambda p: p.name)
+def test_integration_encode_decode_file_pipeline(
+    img_path: Path, preset: Preset, tmp_path: Path
+) -> None:
     try:
-        from fastfractal.core.encode import encode_to_file
         from fastfractal.core.decode import decode_to_file
+        from fastfractal.core.encode import encode_to_file
     except Exception:
         pytest.skip("encode_to_file/decode_to_file not available")
 

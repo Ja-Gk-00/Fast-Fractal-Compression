@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 import inspect
 import os
 import random
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
@@ -39,7 +39,6 @@ IMAGE_PATHS_ALL = [
     if p.is_file() and p.suffix.lower() in IMAGE_SUFFIXES
 ]
 
-# max 4 images, deterministically "random"
 MAX_IMAGES = int(os.getenv("FASTFRACTAL_TEST_IMAGES", "4"))
 SEED = int(os.getenv("FASTFRACTAL_TEST_SEED", "0"))
 IMAGE_PATHS = _select_images(IMAGE_PATHS_ALL, k=max(1, min(MAX_IMAGES, 4)), seed=SEED)
@@ -50,8 +49,8 @@ if not IMAGE_PATHS:
 
 def _require_encode_array():
     try:
-        from fastfractal.core.encode import encode_array  # noqa: WPS433
         from fastfractal.core import encode as encode_mod  # noqa: WPS433
+        from fastfractal.core.encode import encode_array  # noqa: WPS433
     except Exception as e:  # pragma: no cover
         pytest.skip(f"fastfractal encoder not importable: {e}")
     return encode_array, encode_mod
@@ -98,7 +97,8 @@ def _filter_kwargs(fn: object, kwargs: dict[str, object]) -> dict[str, object]:
     allowed = {
         k
         for k, p in sig.parameters.items()
-        if p.kind in (inspect.Parameter.KEYWORD_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
+        if p.kind
+        in (inspect.Parameter.KEYWORD_ONLY, inspect.Parameter.POSITIONAL_OR_KEYWORD)
     }
     return {k: v for k, v in kwargs.items() if k in allowed}
 
@@ -113,7 +113,11 @@ def _load_img(p: Path, mode: Literal["L", "RGB"], max_side: int) -> NDArray[np.f
         else:
             nh = max_side
             nw = max(1, int(round(w * (max_side / float(h)))))
-        resample = Image.Resampling.BILINEAR if hasattr(Image, "Resampling") else Image.BILINEAR
+        resample = (
+            Image.Resampling.BILINEAR
+            if hasattr(Image, "Resampling")
+            else Image.BILINEAR
+        )
         im = im.resize((nw, nh), resample=resample)
 
     a = np.asarray(im, dtype=np.uint8)
@@ -143,7 +147,9 @@ _PARAM_NAMES = set(_SIG.parameters.keys())
 _ALLOWED_BACKENDS = _available_backends(_encode_mod)
 
 
-def _mk_preset(name: str, extra: dict[str, object], decode_iterations: int = 10) -> Preset:
+def _mk_preset(
+    name: str, extra: dict[str, object], decode_iterations: int = 10
+) -> Preset:
     base = {
         # keep it relatively fast
         "max_block": 16,
@@ -159,7 +165,11 @@ def _mk_preset(name: str, extra: dict[str, object], decode_iterations: int = 10)
     }
     base.update(extra)
     # Only keep params that exist in signature.
-    return Preset(name=name, params=_filter_kwargs(_encode_array, base), decode_iterations=decode_iterations)
+    return Preset(
+        name=name,
+        params=_filter_kwargs(_encode_array, base),
+        decode_iterations=decode_iterations,
+    )
 
 
 PRESETS_LIST: list[Preset] = []
@@ -191,27 +201,34 @@ if "backend" in _PARAM_NAMES and "lsh" in _ALLOWED_BACKENDS:
 PRESETS: tuple[Preset, ...] = tuple(PRESETS_LIST)
 
 if not PRESETS:
-    pytest.skip("no advanced presets applicable for current encode_array build", allow_module_level=True)
+    pytest.skip(
+        "no advanced presets applicable for current encode_array build",
+        allow_module_level=True,
+    )
 
 
 # --------- TESTS ----------
 
+
 @pytest.mark.parametrize("img_path", IMAGE_PATHS, ids=lambda p: Path(p).name)
 @pytest.mark.parametrize("mode", ["L", "RGB"])
-@pytest.mark.parametrize("preset", PRESETS, ids=lambda p: getattr(p, "name"))
-def test_integration_advanced_features(img_path: Path, mode: Literal["L", "RGB"], preset: Preset) -> None:
-    from fastfractal.core.encode import encode_array  # noqa: WPS433
+@pytest.mark.parametrize("preset", PRESETS, ids=lambda p: p.name)
+def test_integration_advanced_features(
+    img_path: Path, mode: Literal["L", "RGB"], preset: Preset
+) -> None:
     from fastfractal.core.decode import decode_array  # noqa: WPS433
+    from fastfractal.core.encode import encode_array  # noqa: WPS433
 
     x = _load_img(img_path, mode=mode, max_side=160)
 
     kwargs = dict(preset.params)
 
-    # If preset requests a backend, validate it against SearchBackend-derived list.
     if "backend" in kwargs and _ALLOWED_BACKENDS:
         b = str(kwargs["backend"]).lower()
         if b not in _ALLOWED_BACKENDS:
-            pytest.skip(f"backend '{b}' not supported; available={sorted(_ALLOWED_BACKENDS)}")
+            pytest.skip(
+                f"backend '{b}' not supported; available={sorted(_ALLOWED_BACKENDS)}"
+            )
 
     code = encode_array(x, **kwargs)
     rec = decode_array(code, iterations=int(preset.decode_iterations))
@@ -219,4 +236,6 @@ def test_integration_advanced_features(img_path: Path, mode: Literal["L", "RGB"]
     if mode == "L" and rec.ndim == 3 and rec.shape[2] == 1:
         rec = rec[:, :, 0].astype(np.float32, copy=False)
 
-    _assert_reconstruction(x.astype(np.float32, copy=False), rec.astype(np.float32, copy=False))
+    _assert_reconstruction(
+        x.astype(np.float32, copy=False), rec.astype(np.float32, copy=False)
+    )

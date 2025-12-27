@@ -1,6 +1,7 @@
-from pathlib import Path
-from PIL import Image
 import argparse
+from pathlib import Path
+
+from PIL import Image
 
 
 def process_image(
@@ -56,7 +57,11 @@ def main():
 
     paths = []
     if args.input.is_dir():
-        paths = [p for p in args.input.rglob("*") if p.suffix.lower() in {".png", ".jpg", ".jpeg"}]
+        paths = [
+            p
+            for p in args.input.rglob("*")
+            if p.suffix.lower() in {".png", ".jpg", ".jpeg"}
+        ]
     else:
         paths = [args.input]
 
