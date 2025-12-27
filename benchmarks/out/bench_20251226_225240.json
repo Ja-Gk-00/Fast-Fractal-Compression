@@ -1,0 +1,2620 @@
+{
+    "machine_info": {
+        "node": "DESKTOP-T4L95H6",
+        "processor": "Intel64 Family 6 Model 183 Stepping 1, GenuineIntel",
+        "machine": "AMD64",
+        "python_compiler": "MSC v.1944 64 bit (AMD64)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.13.9",
+        "python_version": "3.13.9",
+        "python_build": [
+            "main",
+            "Oct 22 2025 23:12:41"
+        ],
+        "release": "10",
+        "system": "Windows",
+        "cpu": {
+            "python_version": "3.13.9.final.0 (64 bit)",
+            "cpuinfo_version": [
+                9,
+                0,
+                0
+            ],
+            "cpuinfo_version_string": "9.0.0",
+            "arch": "X86_64",
+            "bits": 64,
+            "count": 24,
+            "arch_string_raw": "AMD64",
+            "vendor_id_raw": "GenuineIntel",
+            "brand_raw": "13th Gen Intel(R) Core(TM) i7-13700K",
+            "hz_actual_friendly": "3.4000 GHz",
+            "hz_actual": [
+                3400000000,
+                0
+            ],
+            "l2_cache_size": 8388608,
+            "stepping": 1,
+            "model": 183,
+            "family": 6,
+            "l3_cache_size": 31457280,
+            "hz_advertised_friendly": "3.4180 GHz",
+            "hz_advertised": [
+                3418000000,
+                0
+            ],
+            "flags": [
+                "3dnow",
+                "3dnowprefetch",
+                "abm",
+                "acpi",
+                "adx",
+                "aes",
+                "apic",
+                "avx",
+                "avx2",
+                "bmi1",
+                "bmi2",
+                "clflush",
+                "clflushopt",
+                "clwb",
+                "cmov",
+                "cx16",
+                "cx8",
+                "de",
+                "dts",
+                "erms",
+                "est",
+                "f16c",
+                "fma",
+                "fpu",
+                "fxsr",
+                "gfni",
+                "ht",
+                "hypervisor",
+                "ia64",
+                "intel_pt",
+                "invpcid",
+                "lahf_lm",
+                "mca",
+                "mce",
+                "mmx",
+                "movbe",
+                "msr",
+                "mtrr",
+                "osxsave",
+                "pae",
+                "pat",
+                "pbe",
+                "pcid",
+                "pclmulqdq",
+                "pdcm",
+                "pge",
+                "pni",
+                "popcnt",
+                "pse",
+                "pse36",
+                "rdpid",
+                "rdrnd",
+                "rdseed",
+                "sep",
+                "serial",
+                "sha",
+                "smap",
+                "smep",
+                "ss",
+                "sse",
+                "sse2",
+                "sse4_1",
+                "sse4_2",
+                "ssse3",
+                "tm",
+                "tm2",
+                "tsc",
+                "umip",
+                "vaes",
+                "vme",
+                "vpclmulqdq",
+                "xsave",
+                "xtpr"
+            ],
+            "l2_cache_line_size": 2048,
+            "l2_cache_associativity": 7
+        }
+    },
+    "commit_info": {
+        "id": "65680bf0d87c1689548a760979f5da46d73dccb9",
+        "time": "2025-12-26T16:37:07+01:00",
+        "author_time": "2025-12-26T16:37:07+01:00",
+        "dirty": true,
+        "project": "Fast-Fractal-Compression",
+        "branch": "main"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_bench_ffc_encode_speed[baseline_dot__syn_random_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_encode_speed[baseline_dot__syn_random_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_1c_128', kind='synthetic', path=None, pattern='random', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "ffc_bytes": 1884,
+                "ffc_compression_ratio": 8.696390658174098
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.054960999987088144,
+                "max": 0.07090160000370815,
+                "mean": 0.05894452000502497,
+                "stddev": 0.004903171001507201,
+                "rounds": 10,
+                "median": 0.05772950002574362,
+                "iqr": 0.004641900071874261,
+                "q1": 0.05528749997029081,
+                "q3": 0.05992940004216507,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.054960999987088144,
+                "hd15iqr": 0.07090160000370815,
+                "ops": 16.96510549097271,
+                "total": 0.5894452000502497,
+                "data": [
+                    0.05608019995270297,
+                    0.059364300046581775,
+                    0.07090160000370815,
+                    0.05941580003127456,
+                    0.062334900023415685,
+                    0.05609470000490546,
+                    0.05528749997029081,
+                    0.054960999987088144,
+                    0.05992940004216507,
+                    0.05507579998811707
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_encode_speed[baseline_dot__syn_random_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_encode_speed[baseline_dot__syn_random_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_3c_128', kind='synthetic', path=None, pattern='random', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "ffc_bytes": 2908,
+                "ffc_compression_ratio": 16.902338376891333
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.10277439997298643,
+                "max": 0.12725929997395724,
+                "mean": 0.10906694998266175,
+                "stddev": 0.008666672030030718,
+                "rounds": 10,
+                "median": 0.10417629999574274,
+                "iqr": 0.012546700017992407,
+                "q1": 0.10342579998541623,
+                "q3": 0.11597250000340864,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.10277439997298643,
+                "hd15iqr": 0.12725929997395724,
+                "ops": 9.168680339543453,
+                "total": 1.0906694998266175,
+                "data": [
+                    0.10622479999437928,
+                    0.11597250000340864,
+                    0.10336969996569678,
+                    0.10376579995499924,
+                    0.11952459998428822,
+                    0.12725929997395724,
+                    0.10439519997453317,
+                    0.10342579998541623,
+                    0.10277439997298643,
+                    0.1039574000169523
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_encode_speed[baseline_dot__syn_smooth_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_encode_speed[baseline_dot__syn_smooth_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_1c_128', kind='synthetic', path=None, pattern='smooth', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "ffc_bytes": 1884,
+                "ffc_compression_ratio": 8.696390658174098
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.05395099997986108,
+                "max": 0.061881099944002926,
+                "mean": 0.056559989991365,
+                "stddev": 0.0024391924489477134,
+                "rounds": 10,
+                "median": 0.055683999991742894,
+                "iqr": 0.0030436000088229775,
+                "q1": 0.05503270000917837,
+                "q3": 0.05807630001800135,
+                "iqr_outliers": 0,
+                "stddev_outliers": 3,
+                "outliers": "3;0",
+                "ld15iqr": 0.05395099997986108,
+                "hd15iqr": 0.061881099944002926,
+                "ops": 17.680342591161523,
+                "total": 0.56559989991365,
+                "data": [
+                    0.05503270000917837,
+                    0.05807630001800135,
+                    0.05395099997986108,
+                    0.056101499998476356,
+                    0.05556619999697432,
+                    0.054473299998790026,
+                    0.061881099944002926,
+                    0.055692599969916046,
+                    0.05567540001356974,
+                    0.05914979998487979
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_encode_speed[baseline_dot__syn_smooth_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_encode_speed[baseline_dot__syn_smooth_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_3c_128', kind='synthetic', path=None, pattern='smooth', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "ffc_bytes": 2908,
+                "ffc_compression_ratio": 16.902338376891333
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.1027163999970071,
+                "max": 0.11508780001895502,
+                "mean": 0.1052117199928034,
+                "stddev": 0.003554941851131314,
+                "rounds": 10,
+                "median": 0.10424924999824725,
+                "iqr": 0.0008459999808110297,
+                "q1": 0.103716199984774,
+                "q3": 0.10456219996558502,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.1027163999970071,
+                "hd15iqr": 0.11508780001895502,
+                "ops": 9.50464454025085,
+                "total": 1.052117199928034,
+                "data": [
+                    0.10420150001300499,
+                    0.10456219996558502,
+                    0.103957699961029,
+                    0.103716199984774,
+                    0.10433120001107454,
+                    0.10572350001893938,
+                    0.10429699998348951,
+                    0.11508780001895502,
+                    0.1027163999970071,
+                    0.10352369997417554
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_encode_speed[baseline_dot__syn_edges_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_encode_speed[baseline_dot__syn_edges_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_1c_128', kind='synthetic', path=None, pattern='edges', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "ffc_bytes": 1884,
+                "ffc_compression_ratio": 8.696390658174098
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.05396160000236705,
+                "max": 0.06780249997973442,
+                "mean": 0.057115049991989505,
+                "stddev": 0.004711898086033084,
+                "rounds": 10,
+                "median": 0.05551979999290779,
+                "iqr": 0.0022664000280201435,
+                "q1": 0.0541287999949418,
+                "q3": 0.056395200022961944,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 0.05396160000236705,
+                "hd15iqr": 0.06365229998482391,
+                "ops": 17.508520086041276,
+                "total": 0.5711504999198951,
+                "data": [
+                    0.05409330001566559,
+                    0.05550199997378513,
+                    0.055602499982342124,
+                    0.054474699951242656,
+                    0.05553760001203045,
+                    0.0541287999949418,
+                    0.056395200022961944,
+                    0.05396160000236705,
+                    0.06365229998482391,
+                    0.06780249997973442
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_encode_speed[baseline_dot__syn_edges_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_encode_speed[baseline_dot__syn_edges_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_3c_128', kind='synthetic', path=None, pattern='edges', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "ffc_bytes": 2908,
+                "ffc_compression_ratio": 16.902338376891333
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.10274100000970066,
+                "max": 0.1145012000342831,
+                "mean": 0.10584024000563659,
+                "stddev": 0.004512437553869138,
+                "rounds": 10,
+                "median": 0.10398539999732748,
+                "iqr": 0.003112299949862063,
+                "q1": 0.10292630002368242,
+                "q3": 0.10603859997354448,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 0.10274100000970066,
+                "hd15iqr": 0.11385819996939972,
+                "ops": 9.448202308939816,
+                "total": 1.0584024000563659,
+                "data": [
+                    0.10274100000970066,
+                    0.10603859997354448,
+                    0.1145012000342831,
+                    0.10444030002690852,
+                    0.11385819996939972,
+                    0.10292630002368242,
+                    0.10353389999363571,
+                    0.10305740003241226,
+                    0.10443690000101924,
+                    0.10286859999177977
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_speed[baseline_dot__syn_random_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_speed[baseline_dot__syn_random_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_1c_128', kind='synthetic', path=None, pattern='random', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "ffc_bytes": 1884,
+                "ffc_compression_ratio": 8.696390658174098
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.004751199972815812,
+                "max": 0.004804200027137995,
+                "mean": 0.004785239993361756,
+                "stddev": 1.3890225406820063e-05,
+                "rounds": 10,
+                "median": 0.0047876999888103455,
+                "iqr": 8.299946784973145e-06,
+                "q1": 0.004781900031957775,
+                "q3": 0.0047901999787427485,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 0.004781100025866181,
+                "hd15iqr": 0.004804200027137995,
+                "ops": 208.97593462130075,
+                "total": 0.04785239993361756,
+                "data": [
+                    0.004751199972815812,
+                    0.004787000012584031,
+                    0.004781100025866181,
+                    0.0047827999806031585,
+                    0.004796799970790744,
+                    0.004788799968082458,
+                    0.004804200027137995,
+                    0.004781900031957775,
+                    0.0047901999787427485,
+                    0.00478839996503666
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_speed[baseline_dot__syn_random_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_speed[baseline_dot__syn_random_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_3c_128', kind='synthetic', path=None, pattern='random', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "ffc_bytes": 2908,
+                "ffc_compression_ratio": 16.902338376891333
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.013658300042152405,
+                "max": 0.01381460000993684,
+                "mean": 0.013721319998148828,
+                "stddev": 5.4871794334665505e-05,
+                "rounds": 10,
+                "median": 0.013700099982088432,
+                "iqr": 8.379993960261345e-05,
+                "q1": 0.013688200036995113,
+                "q3": 0.013771999976597726,
+                "iqr_outliers": 0,
+                "stddev_outliers": 3,
+                "outliers": "3;0",
+                "ld15iqr": 0.013658300042152405,
+                "hd15iqr": 0.01381460000993684,
+                "ops": 72.8792856762259,
+                "total": 0.1372131999814883,
+                "data": [
+                    0.013700999959837645,
+                    0.013771999976597726,
+                    0.013801899971440434,
+                    0.013710999977774918,
+                    0.013699200004339218,
+                    0.013658300042152405,
+                    0.01366940001025796,
+                    0.013697599992156029,
+                    0.013688200036995113,
+                    0.01381460000993684
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_speed[baseline_dot__syn_smooth_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_speed[baseline_dot__syn_smooth_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_1c_128', kind='synthetic', path=None, pattern='smooth', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "ffc_bytes": 1884,
+                "ffc_compression_ratio": 8.696390658174098
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0030420999974012375,
+                "max": 0.003063199983444065,
+                "mean": 0.0030481999914627523,
+                "stddev": 6.082577479328885e-06,
+                "rounds": 10,
+                "median": 0.003047149977646768,
+                "iqr": 5.599984433501959e-06,
+                "q1": 0.0030439000111073256,
+                "q3": 0.0030494999955408275,
+                "iqr_outliers": 1,
+                "stddev_outliers": 2,
+                "outliers": "2;1",
+                "ld15iqr": 0.0030420999974012375,
+                "hd15iqr": 0.003063199983444065,
+                "ops": 328.062464011794,
+                "total": 0.030481999914627522,
+                "data": [
+                    0.003046999976504594,
+                    0.003063199983444065,
+                    0.0030515000107698143,
+                    0.0030420999974012375,
+                    0.0030439000111073256,
+                    0.0030494999955408275,
+                    0.0030491999932564795,
+                    0.003042800002731383,
+                    0.003047299978788942,
+                    0.003045499965082854
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_speed[baseline_dot__syn_smooth_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_speed[baseline_dot__syn_smooth_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_3c_128', kind='synthetic', path=None, pattern='smooth', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "ffc_bytes": 2908,
+                "ffc_compression_ratio": 16.902338376891333
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.00887630000943318,
+                "max": 0.00897720002103597,
+                "mean": 0.008914060005918146,
+                "stddev": 2.8209461846576652e-05,
+                "rounds": 10,
+                "median": 0.008914000005461276,
+                "iqr": 2.859998494386673e-05,
+                "q1": 0.008894400030840188,
+                "q3": 0.008923000015784055,
+                "iqr_outliers": 1,
+                "stddev_outliers": 3,
+                "outliers": "3;1",
+                "ld15iqr": 0.00887630000943318,
+                "hd15iqr": 0.00897720002103597,
+                "ops": 112.18232761907467,
+                "total": 0.08914060005918145,
+                "data": [
+                    0.008881999994628131,
+                    0.00897720002103597,
+                    0.0089119000476785,
+                    0.008926999988034368,
+                    0.008923000015784055,
+                    0.0089221999514848,
+                    0.00891050003701821,
+                    0.008894400030840188,
+                    0.00891609996324405,
+                    0.00887630000943318
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_speed[baseline_dot__syn_edges_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_speed[baseline_dot__syn_edges_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_1c_128', kind='synthetic', path=None, pattern='edges', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "ffc_bytes": 1884,
+                "ffc_compression_ratio": 8.696390658174098
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.003037799964658916,
+                "max": 0.0030817000078968704,
+                "mean": 0.003047229995718226,
+                "stddev": 1.2487336691254405e-05,
+                "rounds": 10,
+                "median": 0.0030439000111073256,
+                "iqr": 5.499983672052622e-06,
+                "q1": 0.00304169999435544,
+                "q3": 0.0030471999780274928,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.003037799964658916,
+                "hd15iqr": 0.0030817000078968704,
+                "ops": 328.166893015997,
+                "total": 0.03047229995718226,
+                "data": [
+                    0.00304169999435544,
+                    0.003048199985641986,
+                    0.0030817000078968704,
+                    0.003037799964658916,
+                    0.0030448000179603696,
+                    0.0030433000065386295,
+                    0.0030423999996855855,
+                    0.0030445000156760216,
+                    0.0030406999867409468,
+                    0.0030471999780274928
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_speed[baseline_dot__syn_edges_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_speed[baseline_dot__syn_edges_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_3c_128', kind='synthetic', path=None, pattern='edges', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "ffc_bytes": 2908,
+                "ffc_compression_ratio": 16.902338376891333
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.008849200035911053,
+                "max": 0.008916799968574196,
+                "mean": 0.008868390007410198,
+                "stddev": 1.9712449522893945e-05,
+                "rounds": 10,
+                "median": 0.00886160001391545,
+                "iqr": 1.810002140700817e-05,
+                "q1": 0.008857799984980375,
+                "q3": 0.008875900006387383,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.008849200035911053,
+                "hd15iqr": 0.008916799968574196,
+                "ops": 112.76003865012993,
+                "total": 0.08868390007410198,
+                "data": [
+                    0.008860400004778057,
+                    0.008881000045221299,
+                    0.008851499995216727,
+                    0.008857799984980375,
+                    0.008849200035911053,
+                    0.008862800023052841,
+                    0.008916799968574196,
+                    0.008859599998686463,
+                    0.00886890001129359,
+                    0.008875900006387383
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_roundtrip_speed[baseline_dot__syn_random_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_roundtrip_speed[baseline_dot__syn_random_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_1c_128', kind='synthetic', path=None, pattern='random', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_1c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.05840189999435097,
+                "max": 0.06948210002155975,
+                "mean": 0.0616422799997963,
+                "stddev": 0.0035878046067625803,
+                "rounds": 10,
+                "median": 0.060152399993967265,
+                "iqr": 0.002036699966993183,
+                "q1": 0.059700500045437366,
+                "q3": 0.06173720001243055,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 0.05840189999435097,
+                "hd15iqr": 0.06667649996234104,
+                "ops": 16.222631609397066,
+                "total": 0.616422799997963,
+                "data": [
+                    0.059876999992411584,
+                    0.05981780000729486,
+                    0.06667649996234104,
+                    0.06948210002155975,
+                    0.05840189999435097,
+                    0.060427799995522946,
+                    0.059056099969893694,
+                    0.061245899996720254,
+                    0.059700500045437366,
+                    0.06173720001243055
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_roundtrip_speed[baseline_dot__syn_random_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_roundtrip_speed[baseline_dot__syn_random_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_3c_128', kind='synthetic', path=None, pattern='random', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_3c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.11629810003796592,
+                "max": 0.12828370003262535,
+                "mean": 0.11943412001128309,
+                "stddev": 0.003767099504413561,
+                "rounds": 10,
+                "median": 0.11794929997995496,
+                "iqr": 0.003940700029488653,
+                "q1": 0.11710119998315349,
+                "q3": 0.12104190001264215,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.11629810003796592,
+                "hd15iqr": 0.12828370003262535,
+                "ops": 8.372816745378362,
+                "total": 1.1943412001128308,
+                "data": [
+                    0.11780599999474362,
+                    0.12319220002973452,
+                    0.1185902000288479,
+                    0.12828370003262535,
+                    0.11717909999424592,
+                    0.11710119998315349,
+                    0.11675620003370568,
+                    0.11629810003796592,
+                    0.12104190001264215,
+                    0.1180925999651663
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_roundtrip_speed[baseline_dot__syn_smooth_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_roundtrip_speed[baseline_dot__syn_smooth_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_1c_128', kind='synthetic', path=None, pattern='smooth', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_1c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0573308999883011,
+                "max": 0.06032910000067204,
+                "mean": 0.05861096999724395,
+                "stddev": 0.0008922974024808241,
+                "rounds": 10,
+                "median": 0.05863849999150261,
+                "iqr": 0.0013583000400103629,
+                "q1": 0.05788059998303652,
+                "q3": 0.05923890002304688,
+                "iqr_outliers": 0,
+                "stddev_outliers": 3,
+                "outliers": "3;0",
+                "ld15iqr": 0.0573308999883011,
+                "hd15iqr": 0.06032910000067204,
+                "ops": 17.06165245255321,
+                "total": 0.5861096999724396,
+                "data": [
+                    0.05861810001078993,
+                    0.0573308999883011,
+                    0.05923890002304688,
+                    0.058473800017964095,
+                    0.06032910000067204,
+                    0.05874670000048354,
+                    0.0575410999590531,
+                    0.059291600016877055,
+                    0.05788059998303652,
+                    0.058658899972215295
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_roundtrip_speed[baseline_dot__syn_smooth_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_roundtrip_speed[baseline_dot__syn_smooth_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_3c_128', kind='synthetic', path=None, pattern='smooth', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_3c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.11041399999521673,
+                "max": 0.11416730005294085,
+                "mean": 0.11176884999731555,
+                "stddev": 0.0009544519119664709,
+                "rounds": 10,
+                "median": 0.1116494499729015,
+                "iqr": 0.0005705999792553484,
+                "q1": 0.1113855000003241,
+                "q3": 0.11195609997957945,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 0.11122389999218285,
+                "hd15iqr": 0.11416730005294085,
+                "ops": 8.947036674565569,
+                "total": 1.1176884999731556,
+                "data": [
+                    0.11041399999521673,
+                    0.11175520002143458,
+                    0.11195960000623018,
+                    0.1113855000003241,
+                    0.11122389999218285,
+                    0.11152799997944385,
+                    0.1115840999991633,
+                    0.11416730005294085,
+                    0.11195609997957945,
+                    0.11171479994663969
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_roundtrip_speed[baseline_dot__syn_edges_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_roundtrip_speed[baseline_dot__syn_edges_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_1c_128', kind='synthetic', path=None, pattern='edges', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_1c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0571512000169605,
+                "max": 0.06799710000632331,
+                "mean": 0.060219110012985765,
+                "stddev": 0.00368876040935638,
+                "rounds": 10,
+                "median": 0.058821350015932694,
+                "iqr": 0.0017596000107005239,
+                "q1": 0.05790240003261715,
+                "q3": 0.059662000043317676,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 0.0571512000169605,
+                "hd15iqr": 0.06601650000084192,
+                "ops": 16.60602423025445,
+                "total": 0.6021911001298577,
+                "data": [
+                    0.059010100027080625,
+                    0.05947999999625608,
+                    0.06799710000632331,
+                    0.058581999968737364,
+                    0.0571512000169605,
+                    0.059662000043317676,
+                    0.05775720003293827,
+                    0.05790240003261715,
+                    0.05863260000478476,
+                    0.06601650000084192
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_roundtrip_speed[baseline_dot__syn_edges_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_roundtrip_speed[baseline_dot__syn_edges_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_3c_128', kind='synthetic', path=None, pattern='edges', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_3c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.11050519999116659,
+                "max": 0.11779330001445487,
+                "mean": 0.1119222299894318,
+                "stddev": 0.002091971558010966,
+                "rounds": 10,
+                "median": 0.11136949999490753,
+                "iqr": 0.0005434999475255609,
+                "q1": 0.11110460001509637,
+                "q3": 0.11164809996262193,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.11050519999116659,
+                "hd15iqr": 0.11779330001445487,
+                "ops": 8.934775514162151,
+                "total": 1.119222299894318,
+                "data": [
+                    0.11165409995010123,
+                    0.11110460001509637,
+                    0.11101609998149797,
+                    0.11142460000701249,
+                    0.11164809996262193,
+                    0.11779330001445487,
+                    0.11050519999116659,
+                    0.11131439998280257,
+                    0.1111938999965787,
+                    0.11156799999298528
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_random_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_random_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_1c_128', kind='synthetic', path=None, pattern='random', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "ffc_bytes": 1884,
+                "ffc_compression_ratio": 8.696390658174098
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.05391000001691282,
+                "max": 0.06763439998030663,
+                "mean": 0.05817848000442609,
+                "stddev": 0.005170479946668745,
+                "rounds": 10,
+                "median": 0.05602665001060814,
+                "iqr": 0.004418700002133846,
+                "q1": 0.054990499978885055,
+                "q3": 0.0594091999810189,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 0.05391000001691282,
+                "hd15iqr": 0.06747599999653175,
+                "ops": 17.188486188087452,
+                "total": 0.5817848000442609,
+                "data": [
+                    0.054990499978885055,
+                    0.0564505000365898,
+                    0.05578990001231432,
+                    0.05391000001691282,
+                    0.056139099993743,
+                    0.0594091999810189,
+                    0.06763439998030663,
+                    0.06747599999653175,
+                    0.05407100002048537,
+                    0.05591420002747327
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_random_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_random_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_3c_128', kind='synthetic', path=None, pattern='random', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "ffc_bytes": 2908,
+                "ffc_compression_ratio": 16.902338376891333
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.10221400001319125,
+                "max": 0.11692340002628043,
+                "mean": 0.10582180999335833,
+                "stddev": 0.005145139298311599,
+                "rounds": 10,
+                "median": 0.10365514998557046,
+                "iqr": 0.0019243000424467027,
+                "q1": 0.10308639996219426,
+                "q3": 0.10501070000464097,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 0.10221400001319125,
+                "hd15iqr": 0.1137614999897778,
+                "ops": 9.449847815518963,
+                "total": 1.0582180999335833,
+                "data": [
+                    0.10308639996219426,
+                    0.11692340002628043,
+                    0.10315219999756664,
+                    0.1035414999932982,
+                    0.1137614999897778,
+                    0.10501070000464097,
+                    0.10376879997784272,
+                    0.10221400001319125,
+                    0.10229739994974807,
+                    0.10446220001904294
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_smooth_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_smooth_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_1c_128', kind='synthetic', path=None, pattern='smooth', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "ffc_bytes": 1884,
+                "ffc_compression_ratio": 8.696390658174098
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.053982899989932775,
+                "max": 0.0667443000129424,
+                "mean": 0.058263050008099525,
+                "stddev": 0.004292160738051259,
+                "rounds": 10,
+                "median": 0.05638165003620088,
+                "iqr": 0.0030798999941907823,
+                "q1": 0.055987600004300475,
+                "q3": 0.05906749999849126,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 0.053982899989932775,
+                "hd15iqr": 0.0652985000051558,
+                "ops": 17.163536750324322,
+                "total": 0.5826305000809953,
+                "data": [
+                    0.05708170001162216,
+                    0.05567460000747815,
+                    0.05603009997867048,
+                    0.0652985000051558,
+                    0.0667443000129424,
+                    0.05619580001803115,
+                    0.05656750005437061,
+                    0.055987600004300475,
+                    0.053982899989932775,
+                    0.05906749999849126
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_smooth_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_smooth_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_3c_128', kind='synthetic', path=None, pattern='smooth', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "ffc_bytes": 2908,
+                "ffc_compression_ratio": 16.902338376891333
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.10357000003568828,
+                "max": 0.11002419999567792,
+                "mean": 0.10594293999602086,
+                "stddev": 0.0021444049169054044,
+                "rounds": 10,
+                "median": 0.1052421999629587,
+                "iqr": 0.002569700009189546,
+                "q1": 0.10438919998705387,
+                "q3": 0.10695889999624342,
+                "iqr_outliers": 0,
+                "stddev_outliers": 3,
+                "outliers": "3;0",
+                "ld15iqr": 0.10357000003568828,
+                "hd15iqr": 0.11002419999567792,
+                "ops": 9.439043319333589,
+                "total": 1.0594293999602087,
+                "data": [
+                    0.10695889999624342,
+                    0.10491749999346212,
+                    0.1092254999675788,
+                    0.11002419999567792,
+                    0.10548559995368123,
+                    0.10438919998705387,
+                    0.10499879997223616,
+                    0.1055097000207752,
+                    0.1043500000378117,
+                    0.10357000003568828
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_edges_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_edges_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_1c_128', kind='synthetic', path=None, pattern='edges', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "ffc_bytes": 1884,
+                "ffc_compression_ratio": 8.696390658174098
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.05568920000223443,
+                "max": 0.07087880000472069,
+                "mean": 0.05993863000185229,
+                "stddev": 0.005731011292739687,
+                "rounds": 10,
+                "median": 0.057180100004188716,
+                "iqr": 0.009387699945364147,
+                "q1": 0.05603680002968758,
+                "q3": 0.06542449997505173,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.05568920000223443,
+                "hd15iqr": 0.07087880000472069,
+                "ops": 16.6837313426933,
+                "total": 0.5993863000185229,
+                "data": [
+                    0.07087880000472069,
+                    0.06764890003250912,
+                    0.06542449997505173,
+                    0.05603680002968758,
+                    0.05713400000240654,
+                    0.057226200005970895,
+                    0.055697199946735054,
+                    0.05732040002476424,
+                    0.05633029999444261,
+                    0.05568920000223443
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_edges_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_compression_rate_and_serialize[baseline_dot__syn_edges_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_3c_128', kind='synthetic', path=None, pattern='edges', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "ffc_bytes": 2908,
+                "ffc_compression_ratio": 16.902338376891333
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.10167159995762631,
+                "max": 0.11037760000908747,
+                "mean": 0.10334940999746323,
+                "stddev": 0.002593823328422417,
+                "rounds": 10,
+                "median": 0.10257925000041723,
+                "iqr": 0.0009008999913930893,
+                "q1": 0.10208209999836981,
+                "q3": 0.1029829999897629,
+                "iqr_outliers": 2,
+                "stddev_outliers": 1,
+                "outliers": "1;2",
+                "ld15iqr": 0.10167159995762631,
+                "hd15iqr": 0.10450970003148541,
+                "ops": 9.675913970138248,
+                "total": 1.0334940999746323,
+                "data": [
+                    0.10265329998219386,
+                    0.11037760000908747,
+                    0.10450970003148541,
+                    0.10183090000646189,
+                    0.10266199999023229,
+                    0.10208209999836981,
+                    0.10167159995762631,
+                    0.1029829999897629,
+                    0.10250520001864061,
+                    0.10221869999077171
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_random_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_random_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_1c_128', kind='synthetic', path=None, pattern='random', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_1c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.004810000013094395,
+                "max": 0.005006199993658811,
+                "mean": 0.004849669995019212,
+                "stddev": 5.682053547445607e-05,
+                "rounds": 10,
+                "median": 0.004834249994019046,
+                "iqr": 2.220005262643099e-05,
+                "q1": 0.004821399983484298,
+                "q3": 0.004843600036110729,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.004810000013094395,
+                "hd15iqr": 0.005006199993658811,
+                "ops": 206.19959729776178,
+                "total": 0.048496699950192124,
+                "data": [
+                    0.004858899977989495,
+                    0.004843499977141619,
+                    0.004827099968679249,
+                    0.004817500011995435,
+                    0.004810000013094395,
+                    0.004821399983484298,
+                    0.004835399973671883,
+                    0.005006199993658811,
+                    0.0048331000143662095,
+                    0.004843600036110729
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_random_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_random_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_3c_128', kind='synthetic', path=None, pattern='random', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_3c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.013684400008060038,
+                "max": 0.01386940001975745,
+                "mean": 0.01375450001214631,
+                "stddev": 5.346319708193181e-05,
+                "rounds": 10,
+                "median": 0.013755149993812665,
+                "iqr": 6.500002928078175e-05,
+                "q1": 0.01371369999833405,
+                "q3": 0.013778700027614832,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.013684400008060038,
+                "hd15iqr": 0.01386940001975745,
+                "ops": 72.70347879726062,
+                "total": 0.1375450001214631,
+                "data": [
+                    0.013750299985986203,
+                    0.01371369999833405,
+                    0.013760000001639128,
+                    0.013708000013139099,
+                    0.01376430003438145,
+                    0.013796999992337078,
+                    0.01386940001975745,
+                    0.013778700027614832,
+                    0.013719200040213764,
+                    0.013684400008060038
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_smooth_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_smooth_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_1c_128', kind='synthetic', path=None, pattern='smooth', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_1c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0030661000055260956,
+                "max": 0.0031013000407256186,
+                "mean": 0.0030825300142169,
+                "stddev": 1.0751140921600633e-05,
+                "rounds": 10,
+                "median": 0.0030802000255789608,
+                "iqr": 1.610000617802143e-05,
+                "q1": 0.0030755000188946724,
+                "q3": 0.003091600025072694,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.0030661000055260956,
+                "hd15iqr": 0.0031013000407256186,
+                "ops": 324.40884448421,
+                "total": 0.030825300142169,
+                "data": [
+                    0.003076199966017157,
+                    0.0030830000177957118,
+                    0.0030755000188946724,
+                    0.0030734000029042363,
+                    0.0030878999968990684,
+                    0.00307740003336221,
+                    0.0030661000055260956,
+                    0.003092900034971535,
+                    0.0031013000407256186,
+                    0.003091600025072694
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_smooth_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_smooth_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_3c_128', kind='synthetic', path=None, pattern='smooth', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_3c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.008884400012902915,
+                "max": 0.009041699988301843,
+                "mean": 0.008936599985463544,
+                "stddev": 4.683317528608883e-05,
+                "rounds": 10,
+                "median": 0.0089229499862995,
+                "iqr": 1.9300030544400215e-05,
+                "q1": 0.00891769997542724,
+                "q3": 0.00893700000597164,
+                "iqr_outliers": 3,
+                "stddev_outliers": 3,
+                "outliers": "3;3",
+                "ld15iqr": 0.008897199993953109,
+                "hd15iqr": 0.008994099975097924,
+                "ops": 111.89938025945217,
+                "total": 0.08936599985463545,
+                "data": [
+                    0.008918599982280284,
+                    0.008884400012902915,
+                    0.009041699988301843,
+                    0.00893700000597164,
+                    0.00892939994810149,
+                    0.008897199993953109,
+                    0.008921400003600866,
+                    0.00891769997542724,
+                    0.008924499968998134,
+                    0.008994099975097924
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_edges_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_edges_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_1c_128', kind='synthetic', path=None, pattern='edges', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_1c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.003068000019993633,
+                "max": 0.0030873999930918217,
+                "mean": 0.003076029988005757,
+                "stddev": 5.221331562706512e-06,
+                "rounds": 10,
+                "median": 0.003076199966017157,
+                "iqr": 5.300040356814861e-06,
+                "q1": 0.0030725999968126416,
+                "q3": 0.0030779000371694565,
+                "iqr_outliers": 1,
+                "stddev_outliers": 3,
+                "outliers": "3;1",
+                "ld15iqr": 0.003068000019993633,
+                "hd15iqr": 0.0030873999930918217,
+                "ops": 325.0943599052222,
+                "total": 0.030760299880057573,
+                "data": [
+                    0.003076299966778606,
+                    0.003075899963732809,
+                    0.003068000019993633,
+                    0.0030873999930918217,
+                    0.003070599981583655,
+                    0.003077099972870201,
+                    0.0030725999968126416,
+                    0.0030783999827690423,
+                    0.0030760999652557075,
+                    0.0030779000371694565
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_edges_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_decode_from_bytes_speed[baseline_dot__syn_edges_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_3c_128', kind='synthetic', path=None, pattern='edges', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_3c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.00887780002085492,
+                "max": 0.008978300029411912,
+                "mean": 0.008935060002841055,
+                "stddev": 3.654118131204225e-05,
+                "rounds": 10,
+                "median": 0.008934600016800687,
+                "iqr": 7.059995550662279e-05,
+                "q1": 0.008902200032025576,
+                "q3": 0.008972799987532198,
+                "iqr_outliers": 0,
+                "stddev_outliers": 4,
+                "outliers": "4;0",
+                "ld15iqr": 0.00887780002085492,
+                "hd15iqr": 0.008978300029411912,
+                "ops": 111.91866643111887,
+                "total": 0.08935060002841055,
+                "data": [
+                    0.008902200032025576,
+                    0.008976699959021062,
+                    0.008961400017142296,
+                    0.008924800029490143,
+                    0.00894440000411123,
+                    0.008978300029411912,
+                    0.00887780002085492,
+                    0.008900299959350377,
+                    0.008972799987532198,
+                    0.00891189998947084
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_encode_speed[baseline_dot__syn_random_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_encode_speed[baseline_dot__syn_random_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_1c_128', kind='synthetic', path=None, pattern='random', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "jpeg_bytes": 13133,
+                "jpeg_compression_ratio": 1.247544353917612,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 7.199996616691351e-05,
+                "max": 8.960004197433591e-05,
+                "mean": 7.670000195503235e-05,
+                "stddev": 5.703811585481094e-06,
+                "rounds": 10,
+                "median": 7.494998862966895e-05,
+                "iqr": 4.200031980872154e-06,
+                "q1": 7.329997606575489e-05,
+                "q3": 7.750000804662704e-05,
+                "iqr_outliers": 2,
+                "stddev_outliers": 2,
+                "outliers": "2;2",
+                "ld15iqr": 7.199996616691351e-05,
+                "hd15iqr": 8.38999985717237e-05,
+                "ops": 13037.80931565399,
+                "total": 0.0007670000195503235,
+                "data": [
+                    8.960004197433591e-05,
+                    8.38999985717237e-05,
+                    7.51999905332923e-05,
+                    7.750000804662704e-05,
+                    7.340003503486514e-05,
+                    7.329997606575489e-05,
+                    7.469998672604561e-05,
+                    7.529999129474163e-05,
+                    7.199996616691351e-05,
+                    7.210002513602376e-05
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_encode_speed[baseline_dot__syn_random_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_encode_speed[baseline_dot__syn_random_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_3c_128', kind='synthetic', path=None, pattern='random', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "jpeg_bytes": 15325,
+                "jpeg_compression_ratio": 3.2073083197389884,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.00010710000060498714,
+                "max": 0.000152900000102818,
+                "mean": 0.00011839000508189202,
+                "stddev": 1.512021501252003e-05,
+                "rounds": 10,
+                "median": 0.00011165000614710152,
+                "iqr": 1.4499993994832039e-05,
+                "q1": 0.00010870001278817654,
+                "q3": 0.00012320000678300858,
+                "iqr_outliers": 1,
+                "stddev_outliers": 2,
+                "outliers": "2;1",
+                "ld15iqr": 0.00010710000060498714,
+                "hd15iqr": 0.000152900000102818,
+                "ops": 8446.65898365564,
+                "total": 0.0011839000508189201,
+                "data": [
+                    0.00012320000678300858,
+                    0.000152900000102818,
+                    0.00013649999164044857,
+                    0.00011340004857629538,
+                    0.00010900001507252455,
+                    0.00010870001278817654,
+                    0.00011449999874457717,
+                    0.00010710000060498714,
+                    0.00010989996371790767,
+                    0.00010870001278817654
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_encode_speed[baseline_dot__syn_smooth_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_encode_speed[baseline_dot__syn_smooth_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_1c_128', kind='synthetic', path=None, pattern='smooth', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "jpeg_bytes": 1527,
+                "jpeg_compression_ratio": 10.729535036018337,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 5.029997555539012e-05,
+                "max": 5.269999383017421e-05,
+                "mean": 5.16899861395359e-05,
+                "stddev": 6.935469163441725e-07,
+                "rounds": 10,
+                "median": 5.169998621568084e-05,
+                "iqr": 1.100008375942707e-06,
+                "q1": 5.119998240843415e-05,
+                "q3": 5.229999078437686e-05,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 5.029997555539012e-05,
+                "hd15iqr": 5.269999383017421e-05,
+                "ops": 19346.106948075463,
+                "total": 0.000516899861395359,
+                "data": [
+                    5.269999383017421e-05,
+                    5.229999078437686e-05,
+                    5.229999078437686e-05,
+                    5.199998850002885e-05,
+                    5.119998240843415e-05,
+                    5.15999854542315e-05,
+                    5.1799986977130175e-05,
+                    5.119998240843415e-05,
+                    5.029997555539012e-05,
+                    5.1499984692782164e-05
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_encode_speed[baseline_dot__syn_smooth_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_encode_speed[baseline_dot__syn_smooth_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_3c_128', kind='synthetic', path=None, pattern='smooth', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "jpeg_bytes": 1951,
+                "jpeg_compression_ratio": 25.193234238851872,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 7.43999844416976e-05,
+                "max": 7.84999574534595e-05,
+                "mean": 7.601999095641077e-05,
+                "stddev": 1.1830235799237341e-06,
+                "rounds": 10,
+                "median": 7.594999624416232e-05,
+                "iqr": 1.500011421740055e-06,
+                "q1": 7.509998977184296e-05,
+                "q3": 7.660000119358301e-05,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 7.43999844416976e-05,
+                "hd15iqr": 7.84999574534595e-05,
+                "ops": 13154.434608830614,
+                "total": 0.0007601999095641077,
+                "data": [
+                    7.84999574534595e-05,
+                    7.700000423938036e-05,
+                    7.639999967068434e-05,
+                    7.660000119358301e-05,
+                    7.599999662488699e-05,
+                    7.589999586343765e-05,
+                    7.51999905332923e-05,
+                    7.509998977184296e-05,
+                    7.509998977184296e-05,
+                    7.43999844416976e-05
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_encode_speed[baseline_dot__syn_edges_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_encode_speed[baseline_dot__syn_edges_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_1c_128', kind='synthetic', path=None, pattern='edges', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "jpeg_bytes": 3787,
+                "jpeg_compression_ratio": 4.326379720095062,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 5.099998088553548e-05,
+                "max": 5.8699981309473515e-05,
+                "mean": 5.291998968459666e-05,
+                "stddev": 2.2699983695428183e-06,
+                "rounds": 10,
+                "median": 5.219999002292752e-05,
+                "iqr": 1.300009898841381e-06,
+                "q1": 5.169998621568084e-05,
+                "q3": 5.299999611452222e-05,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 5.099998088553548e-05,
+                "hd15iqr": 5.8699981309473515e-05,
+                "ops": 18896.451151256904,
+                "total": 0.0005291998968459666,
+                "data": [
+                    5.8699981309473515e-05,
+                    5.460000829771161e-05,
+                    5.299999611452222e-05,
+                    5.269999383017421e-05,
+                    5.219999002292752e-05,
+                    5.219999002292752e-05,
+                    5.1799986977130175e-05,
+                    5.169998621568084e-05,
+                    5.129998316988349e-05,
+                    5.099998088553548e-05
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_encode_speed[baseline_dot__syn_edges_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_encode_speed[baseline_dot__syn_edges_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_3c_128', kind='synthetic', path=None, pattern='edges', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "jpeg_bytes": 5396,
+                "jpeg_compression_ratio": 9.108969607116382,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 7.840001489967108e-05,
+                "max": 8.810003055259585e-05,
+                "mean": 8.245000499300659e-05,
+                "stddev": 3.4131380370192423e-06,
+                "rounds": 10,
+                "median": 8.075000368990004e-05,
+                "iqr": 5.699985194951296e-06,
+                "q1": 8.000002708286047e-05,
+                "q3": 8.570001227781177e-05,
+                "iqr_outliers": 0,
+                "stddev_outliers": 3,
+                "outliers": "3;0",
+                "ld15iqr": 7.840001489967108e-05,
+                "hd15iqr": 8.810003055259585e-05,
+                "ops": 12128.562030830926,
+                "total": 0.0008245000499300659,
+                "data": [
+                    8.650001836940646e-05,
+                    8.570001227781177e-05,
+                    8.109997725114226e-05,
+                    8.029997115954757e-05,
+                    8.040003012865782e-05,
+                    8.810003055259585e-05,
+                    8.450000314041972e-05,
+                    8.000002708286047e-05,
+                    7.949996506795287e-05,
+                    7.840001489967108e-05
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_decode_speed[baseline_dot__syn_random_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_decode_speed[baseline_dot__syn_random_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_1c_128', kind='synthetic', path=None, pattern='random', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_1c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.00011299998732283711,
+                "max": 0.00012209999840706587,
+                "mean": 0.00011666998616419733,
+                "stddev": 3.1062816845180376e-06,
+                "rounds": 10,
+                "median": 0.0001159499806817621,
+                "iqr": 4.699977580457926e-06,
+                "q1": 0.00011419999646022916,
+                "q3": 0.00011889997404068708,
+                "iqr_outliers": 0,
+                "stddev_outliers": 4,
+                "outliers": "4;0",
+                "ld15iqr": 0.00011299998732283711,
+                "hd15iqr": 0.00012209999840706587,
+                "ops": 8571.184696916262,
+                "total": 0.0011666998616419733,
+                "data": [
+                    0.00012209999840706587,
+                    0.00012059998698532581,
+                    0.0001175999641418457,
+                    0.00011530000483617187,
+                    0.00011659995652735233,
+                    0.00011309998808428645,
+                    0.00011419999646022916,
+                    0.00011299998732283711,
+                    0.00011889997404068708,
+                    0.00011530000483617187
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_decode_speed[baseline_dot__syn_random_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_decode_speed[baseline_dot__syn_random_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_3c_128', kind='synthetic', path=None, pattern='random', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_3c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.00015979999443516135,
+                "max": 0.00023509998572990298,
+                "mean": 0.00017529999604448676,
+                "stddev": 2.3448046975291326e-05,
+                "rounds": 10,
+                "median": 0.00016345002222806215,
+                "iqr": 2.3300002794712782e-05,
+                "q1": 0.00016140000661835074,
+                "q3": 0.00018470000941306353,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.00015979999443516135,
+                "hd15iqr": 0.00023509998572990298,
+                "ops": 5704.5066889004665,
+                "total": 0.0017529999604448676,
+                "data": [
+                    0.00018859998090192676,
+                    0.00023509998572990298,
+                    0.0001737999846227467,
+                    0.00016199995297938585,
+                    0.00016140000661835074,
+                    0.00015979999443516135,
+                    0.00016070000128820539,
+                    0.00016390002565458417,
+                    0.00016300001880154014,
+                    0.00018470000941306353
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_decode_speed[baseline_dot__syn_smooth_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_decode_speed[baseline_dot__syn_smooth_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_1c_128', kind='synthetic', path=None, pattern='smooth', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_1c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 6.220000796020031e-05,
+                "max": 6.500002928078175e-05,
+                "mean": 6.327000446617603e-05,
+                "stddev": 9.843863918530487e-07,
+                "rounds": 10,
+                "median": 6.294998456723988e-05,
+                "iqr": 1.400010660290718e-06,
+                "q1": 6.250001024454832e-05,
+                "q3": 6.390002090483904e-05,
+                "iqr_outliers": 0,
+                "stddev_outliers": 3,
+                "outliers": "3;0",
+                "ld15iqr": 6.220000796020031e-05,
+                "hd15iqr": 6.500002928078175e-05,
+                "ops": 15805.277847492443,
+                "total": 0.0006327000446617603,
+                "data": [
+                    6.450002547353506e-05,
+                    6.500002928078175e-05,
+                    6.379996193572879e-05,
+                    6.390002090483904e-05,
+                    6.250001024454832e-05,
+                    6.240000948309898e-05,
+                    6.250001024454832e-05,
+                    6.220000796020031e-05,
+                    6.259995279833674e-05,
+                    6.330001633614302e-05
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_decode_speed[baseline_dot__syn_smooth_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_decode_speed[baseline_dot__syn_smooth_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_3c_128', kind='synthetic', path=None, pattern='smooth', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_3c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 9.640003554522991e-05,
+                "max": 0.00012049998622387648,
+                "mean": 0.00010884000221267343,
+                "stddev": 9.317622770867273e-06,
+                "rounds": 10,
+                "median": 0.0001126999850384891,
+                "iqr": 1.530005829408765e-05,
+                "q1": 9.90999978967011e-05,
+                "q3": 0.00011440005619078875,
+                "iqr_outliers": 0,
+                "stddev_outliers": 5,
+                "outliers": "5;0",
+                "ld15iqr": 9.640003554522991e-05,
+                "hd15iqr": 0.00012049998622387648,
+                "ops": 9187.798416670366,
+                "total": 0.0010884000221267343,
+                "data": [
+                    0.00012049998622387648,
+                    0.00010050000855699182,
+                    9.90999978967011e-05,
+                    0.00011299998732283711,
+                    0.00011409999569877982,
+                    0.00011239998275414109,
+                    0.00011989998165518045,
+                    9.809999028220773e-05,
+                    9.640003554522991e-05,
+                    0.00011440005619078875
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_decode_speed[baseline_dot__syn_edges_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_decode_speed[baseline_dot__syn_edges_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_1c_128', kind='synthetic', path=None, pattern='edges', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_1c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 6.630003917962313e-05,
+                "max": 0.00016729999333620071,
+                "mean": 8.401000523008406e-05,
+                "stddev": 3.141610337022944e-05,
+                "rounds": 10,
+                "median": 7.115001790225506e-05,
+                "iqr": 1.379998866468668e-05,
+                "q1": 6.78999931551516e-05,
+                "q3": 8.169998181983829e-05,
+                "iqr_outliers": 2,
+                "stddev_outliers": 1,
+                "outliers": "1;2",
+                "ld15iqr": 6.630003917962313e-05,
+                "hd15iqr": 0.00010459998156875372,
+                "ops": 11903.344098851443,
+                "total": 0.0008401000523008406,
+                "data": [
+                    0.00016729999333620071,
+                    0.00010459998156875372,
+                    8.169998181983829e-05,
+                    7.369997911155224e-05,
+                    7.040001219138503e-05,
+                    7.190002361312509e-05,
+                    6.910000229254365e-05,
+                    6.720004603266716e-05,
+                    6.630003917962313e-05,
+                    6.78999931551516e-05
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_decode_speed[baseline_dot__syn_edges_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_decode_speed[baseline_dot__syn_edges_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_3c_128', kind='synthetic', path=None, pattern='edges', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_3c_128",
+            "extra_info": {},
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.00010409997776150703,
+                "max": 0.00013990001752972603,
+                "mean": 0.00011717998422682286,
+                "stddev": 1.2245169501460116e-05,
+                "rounds": 10,
+                "median": 0.00011734999134205282,
+                "iqr": 1.5900004655122757e-05,
+                "q1": 0.00010539998766034842,
+                "q3": 0.00012129999231547117,
+                "iqr_outliers": 0,
+                "stddev_outliers": 4,
+                "outliers": "4;0",
+                "ld15iqr": 0.00010409997776150703,
+                "hd15iqr": 0.00013990001752972603,
+                "ops": 8533.88065033633,
+                "total": 0.0011717998422682285,
+                "data": [
+                    0.0001210999907925725,
+                    0.00011359999189153314,
+                    0.00013209995813667774,
+                    0.00010409997776150703,
+                    0.00010539998766034842,
+                    0.00012129999231547117,
+                    0.00012129999231547117,
+                    0.00010419997852295637,
+                    0.00010879995534196496,
+                    0.00013990001752972603
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_compression_rate[baseline_dot__syn_random_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_compression_rate[baseline_dot__syn_random_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_1c_128', kind='synthetic', path=None, pattern='random', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "jpeg_bytes": 13133,
+                "jpeg_compression_ratio": 1.247544353917612,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.00016459997277706861,
+                "max": 0.00019699998665601015,
+                "mean": 0.00017237999709323048,
+                "stddev": 9.364207596063417e-06,
+                "rounds": 10,
+                "median": 0.00017095002112910151,
+                "iqr": 6.4999330788850784e-06,
+                "q1": 0.00016680004773661494,
+                "q3": 0.00017329998081550002,
+                "iqr_outliers": 1,
+                "stddev_outliers": 1,
+                "outliers": "1;1",
+                "ld15iqr": 0.00016459997277706861,
+                "hd15iqr": 0.00019699998665601015,
+                "ops": 5801.137120678551,
+                "total": 0.0017237999709323049,
+                "data": [
+                    0.00017329998081550002,
+                    0.00016990001313388348,
+                    0.00017309997929260135,
+                    0.0001745999907143414,
+                    0.00016680004773661494,
+                    0.00016459997277706861,
+                    0.00016489997506141663,
+                    0.00016759999562054873,
+                    0.00017200002912431955,
+                    0.00019699998665601015
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_compression_rate[baseline_dot__syn_random_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_compression_rate[baseline_dot__syn_random_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_random_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_random_3c_128', kind='synthetic', path=None, pattern='random', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_random_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "jpeg_bytes": 15325,
+                "jpeg_compression_ratio": 3.2073083197389884,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.00010379997547715902,
+                "max": 0.00011270004324615002,
+                "mean": 0.0001068799989297986,
+                "stddev": 2.7884098548502388e-06,
+                "rounds": 10,
+                "median": 0.00010594999184831977,
+                "iqr": 3.900029696524143e-06,
+                "q1": 0.00010489998385310173,
+                "q3": 0.00010880001354962587,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.00010379997547715902,
+                "hd15iqr": 0.00011270004324615002,
+                "ops": 9356.287518835254,
+                "total": 0.001068799989297986,
+                "data": [
+                    0.00011270004324615002,
+                    0.00010900001507252455,
+                    0.00010880001354962587,
+                    0.00010840001050382853,
+                    0.00010569998994469643,
+                    0.00010419997852295637,
+                    0.00010619999375194311,
+                    0.0001050999853760004,
+                    0.00010489998385310173,
+                    0.00010379997547715902
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_compression_rate[baseline_dot__syn_smooth_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_compression_rate[baseline_dot__syn_smooth_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_1c_128', kind='synthetic', path=None, pattern='smooth', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "jpeg_bytes": 1527,
+                "jpeg_compression_ratio": 10.729535036018337,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 5.059997783973813e-05,
+                "max": 5.289999535307288e-05,
+                "mean": 5.1669985987246035e-05,
+                "stddev": 7.424490668120578e-07,
+                "rounds": 10,
+                "median": 5.164998583495617e-05,
+                "iqr": 1.100008375942707e-06,
+                "q1": 5.129998316988349e-05,
+                "q3": 5.23999915458262e-05,
+                "iqr_outliers": 0,
+                "stddev_outliers": 3,
+                "outliers": "3;0",
+                "ld15iqr": 5.059997783973813e-05,
+                "hd15iqr": 5.289999535307288e-05,
+                "ops": 19353.59533960073,
+                "total": 0.0005166998598724604,
+                "data": [
+                    5.289999535307288e-05,
+                    5.23999915458262e-05,
+                    5.169998621568084e-05,
+                    5.1799986977130175e-05,
+                    5.129998316988349e-05,
+                    5.059997783973813e-05,
+                    5.069997860118747e-05,
+                    5.129998316988349e-05,
+                    5.23999915458262e-05,
+                    5.15999854542315e-05
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_compression_rate[baseline_dot__syn_smooth_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_compression_rate[baseline_dot__syn_smooth_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_smooth_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_smooth_3c_128', kind='synthetic', path=None, pattern='smooth', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_smooth_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "jpeg_bytes": 1951,
+                "jpeg_compression_ratio": 25.193234238851872,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 7.449998520314693e-05,
+                "max": 8.460000390186906e-05,
+                "mean": 7.776999264024198e-05,
+                "stddev": 3.0976856545687316e-06,
+                "rounds": 10,
+                "median": 7.639999967068434e-05,
+                "iqr": 3.89997148886323e-06,
+                "q1": 7.609999738633633e-05,
+                "q3": 7.999996887519956e-05,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 7.449998520314693e-05,
+                "hd15iqr": 8.460000390186906e-05,
+                "ops": 12858.429916869392,
+                "total": 0.0007776999264024198,
+                "data": [
+                    8.460000390186906e-05,
+                    8.079997496679425e-05,
+                    7.730000652372837e-05,
+                    7.619999814778566e-05,
+                    7.6299998909235e-05,
+                    7.539999205619097e-05,
+                    7.449998520314693e-05,
+                    7.650000043213367e-05,
+                    7.999996887519956e-05,
+                    7.609999738633633e-05
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_compression_rate[baseline_dot__syn_edges_1c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_compression_rate[baseline_dot__syn_edges_1c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_1c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_1c_128', kind='synthetic', path=None, pattern='edges', channels=1, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_1c_128",
+            "extra_info": {
+                "orig_bytes": 16384,
+                "jpeg_bytes": 3787,
+                "jpeg_compression_ratio": 4.326379720095062,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 5.250005051493645e-05,
+                "max": 5.7800032664090395e-05,
+                "mean": 5.416000494733453e-05,
+                "stddev": 1.9009967999598597e-06,
+                "rounds": 10,
+                "median": 5.3099996875971556e-05,
+                "iqr": 3.0999653972685337e-06,
+                "q1": 5.2799994591623545e-05,
+                "q3": 5.589995998889208e-05,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 5.250005051493645e-05,
+                "hd15iqr": 5.7800032664090395e-05,
+                "ops": 18463.80924396896,
+                "total": 0.0005416000494733453,
+                "data": [
+                    5.660002352669835e-05,
+                    5.589995998889208e-05,
+                    5.7800032664090395e-05,
+                    5.3099996875971556e-05,
+                    5.3099996875971556e-05,
+                    5.4100004490464926e-05,
+                    5.289999535307288e-05,
+                    5.2799994591623545e-05,
+                    5.250005051493645e-05,
+                    5.2799994591623545e-05
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_compression_rate[baseline_dot__syn_edges_3c_128]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_compression_rate[baseline_dot__syn_edges_3c_128]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='baseline_dot__syn_edges_3c_128', encode_kwargs={'min_block': 16, 'max_block': 16, 'stride': 8, 'use_quadtree': False, 'max_mse': 0.0025, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 32, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': False, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': 3000, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='both', image=ImageSpec(name='syn_edges_3c_128', kind='synthetic', path=None, pattern='edges', channels=3, size=128, seed=123), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "baseline_dot__syn_edges_3c_128",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "jpeg_bytes": 5396,
+                "jpeg_compression_ratio": 9.108969607116382,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 7.790001109242439e-05,
+                "max": 8.259998867288232e-05,
+                "mean": 8.036998915486037e-05,
+                "stddev": 1.3300282219119726e-06,
+                "rounds": 10,
+                "median": 8.014997001737356e-05,
+                "iqr": 1.7999554984271526e-06,
+                "q1": 7.960002403706312e-05,
+                "q3": 8.139997953549027e-05,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 7.790001109242439e-05,
+                "hd15iqr": 8.259998867288232e-05,
+                "ops": 12442.4553308469,
+                "total": 0.0008036998915486038,
+                "data": [
+                    8.149998029693961e-05,
+                    8.109997725114226e-05,
+                    7.979996735230088e-05,
+                    7.960002403706312e-05,
+                    7.960002403706312e-05,
+                    8.259998867288232e-05,
+                    7.969996659085155e-05,
+                    7.790001109242439e-05,
+                    8.139997953549027e-05,
+                    8.049997268244624e-05
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2025-12-26T21:53:04.762649+00:00",
+    "version": "5.2.3"
+}

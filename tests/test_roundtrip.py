@@ -25,9 +25,12 @@ def test_roundtrip_rgb_shape() -> None:
     out = decode_array(code, iterations=6)
     assert out.shape == img.shape
 
+
 def test_roundtrip_gray_shape_non_multiple() -> None:
     rng = np.random.default_rng(0)
     img = rng.random((35, 51), dtype=np.float32)
-    code = encode_array(img, block=8, stride=4, topk=16, entropy_thresh=0.0, max_domains=128)
+    code = encode_array(
+        img, block=8, stride=4, topk=16, entropy_thresh=0.0, max_domains=128
+    )
     out = decode_array(code, iterations=6)
     assert out.shape == img.shape

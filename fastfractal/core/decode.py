@@ -89,11 +89,15 @@ def decode_array(code: FractalCode, iterations: int = 8) -> NDArray[np.float32]:
                 dt = apply_transform_2d(ds, t)
                 if code.quantized:
                     s = dequant_s(int(codes_q[i, 0, 0]), float(code.s_clip))
-                    o = dequant_o(int(codes_q[i, 0, 1]), float(code.o_min), float(code.o_max))
+                    o = dequant_o(
+                        int(codes_q[i, 0, 1]), float(code.o_min), float(code.o_max)
+                    )
                 else:
                     s = float(codes_f[i, 0, 0])
                     o = float(codes_f[i, 0, 1])
-                blk = np.clip(np.float32(s) * dt + np.float32(o), 0.0, 1.0).astype(np.float32, copy=False)
+                blk = np.clip(np.float32(s) * dt + np.float32(o), 0.0, 1.0).astype(
+                    np.float32, copy=False
+                )
                 nxt[y : y + b, x : x + b] = blk
             else:
                 for ch in range(c):
@@ -102,11 +106,15 @@ def decode_array(code: FractalCode, iterations: int = 8) -> NDArray[np.float32]:
                     dt = apply_transform_2d(ds, t)
                     if code.quantized:
                         s = dequant_s(int(codes_q[i, ch, 0]), float(code.s_clip))
-                        o = dequant_o(int(codes_q[i, ch, 1]), float(code.o_min), float(code.o_max))
+                        o = dequant_o(
+                            int(codes_q[i, ch, 1]), float(code.o_min), float(code.o_max)
+                        )
                     else:
                         s = float(codes_f[i, ch, 0])
                         o = float(codes_f[i, ch, 1])
-                    blk = np.clip(np.float32(s) * dt + np.float32(o), 0.0, 1.0).astype(np.float32, copy=False)
+                    blk = np.clip(np.float32(s) * dt + np.float32(o), 0.0, 1.0).astype(
+                        np.float32, copy=False
+                    )
                     nxt[y : y + b, x : x + b, ch] = blk
 
         cur = nxt
@@ -120,3 +128,7 @@ def decode_to_file(input_path: Path, output_path: Path, iterations: int = 8) -> 
     code = load_code(input_path)
     img = decode_array(code, iterations=iterations)
     save_image(output_path, img)
+
+
+def decode(input_path: Path, output_path: Path, iterations: int = 8) -> None:
+    decode_to_file(input_path, output_path, iterations=iterations)

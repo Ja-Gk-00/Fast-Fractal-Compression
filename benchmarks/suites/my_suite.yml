@@ -1,0 +1,23 @@
+version: 1
+
+cases:
+  - id: gray_32_fractal_smoke
+    image: ../../tests/test-data/lena-colour.png
+    mode: both
+
+    fractal:
+      max_block: 12
+      min_block: 4
+      use_quadtree: true
+      quantized: true
+      s_clip: 1.0
+      o_min: -1.0
+      o_max: 1.0
+      iterations_hint: 12
+
+      pools:
+        - block: 4
+          stride: 2
+          topk: 16
+          entropy_thresh: 0.0
+          max_domains: 128

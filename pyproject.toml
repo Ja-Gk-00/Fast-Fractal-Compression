@@ -4,10 +4,26 @@ version = "0.1.0"
 description = "Fast fractal image compression packages"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.26", "pillow>=10.0"]
+dependencies = ["numpy>=1.23", "Pillow>=10.0", "PyYAML>=6.0"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "mypy>=1.8", "ruff>=0.6", "black>=24.0", "types-Pillow"]
+dev = [
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "types-PyYAML>=6.0.12.20240808",
+]
+
+[dependency-groups]
+bench = ["pytest-benchmark>=4.0"]
+
+notebooks = [
+    "ipykernel>=6.29",
+    "jupyterlab>=4.2",
+    "matplotlib>=3.8",
+    "nbformat>=5.10",
+]
 
 [tool.black]
 line-length = 88
@@ -16,8 +32,9 @@ target-version = ["py310"]
 [tool.ruff]
 line-length = 88
 target-version = "py310"
-select = ["E", "F", "I", "B", "UP"]
-ignore = ["E501"]
+lint.select = ["E", "F", "I", "B", "UP"]
+lint.ignore = ["E501"]
+exclude = [".venv", "notebooks", ".github"]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true

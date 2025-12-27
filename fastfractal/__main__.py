@@ -30,7 +30,9 @@ def main() -> None:
     pe.add_argument("--stride", type=int, default=None)
 
     gq = pe.add_mutually_exclusive_group()
-    gq.add_argument("--quadtree", dest="quadtree", action="store_const", const=True, default=None)
+    gq.add_argument(
+        "--quadtree", dest="quadtree", action="store_const", const=True, default=None
+    )
     gq.add_argument("--no-quadtree", dest="quadtree", action="store_const", const=False)
 
     pe.add_argument("--max-mse", type=float, default=None)
@@ -38,18 +40,24 @@ def main() -> None:
     pe.add_argument("--buckets", type=int, default=None)
 
     gs = pe.add_mutually_exclusive_group()
-    gs.add_argument("--s-sets", dest="s_sets", action="store_const", const=True, default=None)
+    gs.add_argument(
+        "--s-sets", dest="s_sets", action="store_const", const=True, default=None
+    )
     gs.add_argument("--no-s-sets", dest="s_sets", action="store_const", const=False)
 
     gk = pe.add_mutually_exclusive_group()
-    gk.add_argument("--quantize", dest="quantize", action="store_const", const=True, default=None)
+    gk.add_argument(
+        "--quantize", dest="quantize", action="store_const", const=True, default=None
+    )
     gk.add_argument("--no-quantize", dest="quantize", action="store_const", const=False)
 
     pe.add_argument("--s-clip", type=float, default=None)
     pe.add_argument("--o-min", type=float, default=None)
     pe.add_argument("--o-max", type=float, default=None)
 
-    pe.add_argument("--backend", type=str, default=None, choices=["dot", "lsh", "pca_lsh"])
+    pe.add_argument(
+        "--backend", type=str, default=None, choices=["dot", "lsh", "pca_lsh"]
+    )
     pe.add_argument("--topk", type=int, default=None)
     pe.add_argument("--lsh-budget", type=int, default=None)
     pe.add_argument("--pca-dim", type=int, default=None)

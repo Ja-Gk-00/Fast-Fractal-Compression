@@ -6,8 +6,7 @@ from pathlib import Path
 import numpy as np
 from numpy.typing import NDArray
 
-from fastfractal.core.types import FractalCode, MAGIC_V2
-
+from fastfractal.core.types import MAGIC_V2, FractalCode
 
 _HDR = "<4sIIIIBHIIB"
 _HDR_SZ = struct.calcsize(_HDR)
@@ -15,7 +14,7 @@ _QHDR = "<fff"
 _QHDR_SZ = struct.calcsize(_QHDR)
 
 
-def save_code(path: Path, code: FractalCode) -> None:
+def dump_code(code: FractalCode) -> bytes:
     h = int(code.height)
     w = int(code.width)
     oh = int(code.orig_height)
@@ -40,77 +39,91 @@ def save_code(path: Path, code: FractalCode) -> None:
     leaf_dom = code.leaf_dom.astype(np.uint32, copy=False)
     leaf_tf = code.leaf_tf.astype(np.uint8, copy=False)
 
-    with path.open("wb") as f:
-        f.write(header)
-        f.write(qhdr)
+    chunks: list[bytes] = [
+        header,
+        qhdr,
+        pool_blocks.tobytes(order="C"),
+        pool_strides.tobytes(order="C"),
+        pool_offsets.tobytes(order="C"),
+        domain_yx.tobytes(order="C"),
+        leaf_yx.tobytes(order="C"),
+        leaf_pool.tobytes(order="C"),
+        leaf_dom.tobytes(order="C"),
+        leaf_tf.tobytes(order="C"),
+    ]
 
-        f.write(pool_blocks.tobytes(order="C"))
-        f.write(pool_strides.tobytes(order="C"))
-        f.write(pool_offsets.tobytes(order="C"))
-
-        f.write(domain_yx.tobytes(order="C"))
-
-        f.write(leaf_yx.tobytes(order="C"))
-        f.write(leaf_pool.tobytes(order="C"))
-        f.write(leaf_dom.tobytes(order="C"))
-        f.write(leaf_tf.tobytes(order="C"))
-
-        if code.quantized:
-            if code.leaf_codes_q is None:
-                raise ValueError("leaf_codes_q missing")
-            f.write(code.leaf_codes_q.astype(np.uint8, copy=False).tobytes(order="C"))
-        else:
-            if code.leaf_codes_f is None:
-                raise ValueError("leaf_codes_f missing")
-            f.write(code.leaf_codes_f.astype(np.float32, copy=False).tobytes(order="C"))
-
-
-def load_code(path: Path) -> FractalCode:
-    with path.open("rb") as f:
-        header = f.read(_HDR_SZ)
-        magic, h, w, oh, ow, c, pools, leaves, it, flags = struct.unpack(_HDR, header)
-        if magic != MAGIC_V2:
-            raise ValueError("bad magic")
-
-        s_clip, o_min, o_max = struct.unpack(_QHDR, f.read(_QHDR_SZ))
-        quantized = (int(flags) & 1) != 0
-
-        pool_blocks = np.frombuffer(f.read(int(pools) * 2), dtype=np.uint16).copy()
-        pool_strides = np.frombuffer(f.read(int(pools) * 2), dtype=np.uint16).copy()
-        pool_offsets = np.frombuffer(f.read((int(pools) + 1) * 4), dtype=np.uint32).copy()
-
-        total_domains = int(pool_offsets[-1])
-        domain_yx = (
-            np.frombuffer(f.read(total_domains * 4), dtype=np.uint16)
-            .reshape(total_domains, 2)
-            .copy()
+    if code.quantized:
+        if code.leaf_codes_q is None:
+            raise ValueError("leaf_codes_q missing")
+        chunks.append(code.leaf_codes_q.astype(np.uint8, copy=False).tobytes(order="C"))
+    else:
+        if code.leaf_codes_f is None:
+            raise ValueError("leaf_codes_f missing")
+        chunks.append(
+            code.leaf_codes_f.astype(np.float32, copy=False).tobytes(order="C")
         )
 
-        leaf_yx = (
-            np.frombuffer(f.read(int(leaves) * 4), dtype=np.uint16)
-            .reshape(int(leaves), 2)
+    return b"".join(chunks)
+
+
+def load_code_bytes(data: bytes) -> FractalCode:
+    mv = memoryview(data)
+    if len(mv) < _HDR_SZ + _QHDR_SZ:
+        raise ValueError("truncated")
+
+    magic, h, w, oh, ow, c, pools, leaves, it, flags = struct.unpack_from(_HDR, mv, 0)
+    if magic != MAGIC_V2:
+        raise ValueError("bad magic")
+
+    s_clip, o_min, o_max = struct.unpack_from(_QHDR, mv, _HDR_SZ)
+    quantized = (int(flags) & 1) != 0
+
+    off = _HDR_SZ + _QHDR_SZ
+
+    def take(n: int) -> memoryview:
+        nonlocal off
+        if off + n > len(mv):
+            raise ValueError("truncated")
+        out = mv[off : off + n]
+        off += n
+        return out
+
+    pool_blocks = np.frombuffer(take(int(pools) * 2), dtype=np.uint16).copy()
+    pool_strides = np.frombuffer(take(int(pools) * 2), dtype=np.uint16).copy()
+    pool_offsets = np.frombuffer(take((int(pools) + 1) * 4), dtype=np.uint32).copy()
+
+    total_domains = int(pool_offsets[-1])
+    domain_yx = (
+        np.frombuffer(take(total_domains * 4), dtype=np.uint16)
+        .reshape(total_domains, 2)
+        .copy()
+    )
+
+    leaf_yx = (
+        np.frombuffer(take(int(leaves) * 4), dtype=np.uint16)
+        .reshape(int(leaves), 2)
+        .copy()
+    )
+    leaf_pool = np.frombuffer(take(int(leaves)), dtype=np.uint8).copy()
+    leaf_dom = np.frombuffer(take(int(leaves) * 4), dtype=np.uint32).copy()
+    leaf_tf = np.frombuffer(take(int(leaves)), dtype=np.uint8).copy()
+
+    leaf_codes_q: NDArray[np.uint8] | None = None
+    leaf_codes_f: NDArray[np.float32] | None = None
+    if quantized:
+        n = int(leaves) * int(c) * 2
+        leaf_codes_q = (
+            np.frombuffer(take(n), dtype=np.uint8)
+            .reshape(int(leaves), int(c), 2)
             .copy()
         )
-        leaf_pool = np.frombuffer(f.read(int(leaves)), dtype=np.uint8).copy()
-        leaf_dom = np.frombuffer(f.read(int(leaves) * 4), dtype=np.uint32).copy()
-        leaf_tf = np.frombuffer(f.read(int(leaves)), dtype=np.uint8).copy()
-
-        leaf_codes_q: NDArray[np.uint8] | None = None
-        leaf_codes_f: NDArray[np.float32] | None = None
-        if quantized:
-            n = int(leaves) * int(c) * 2
-            leaf_codes_q = (
-                np.frombuffer(f.read(n), dtype=np.uint8)
-                .reshape(int(leaves), int(c), 2)
-                .copy()
-            )
-        else:
-            n = int(leaves) * int(c) * 2
-            leaf_codes_f = (
-                np.frombuffer(f.read(n * 4), dtype=np.float32)
-                .reshape(int(leaves), int(c), 2)
-                .copy()
-            )
+    else:
+        n = int(leaves) * int(c) * 2
+        leaf_codes_f = (
+            np.frombuffer(take(n * 4), dtype=np.float32)
+            .reshape(int(leaves), int(c), 2)
+            .copy()
+        )
 
     return FractalCode(
         height=int(h),
@@ -134,3 +147,11 @@ def load_code(path: Path) -> FractalCode:
         leaf_codes_f=leaf_codes_f,
         iterations_hint=int(it),
     )
+
+
+def save_code(path: Path, code: FractalCode) -> None:
+    path.write_bytes(dump_code(code))
+
+
+def load_code(path: Path) -> FractalCode:
+    return load_code_bytes(path.read_bytes())

@@ -1,0 +1,49 @@
+bench:
+  include_jpeg: true
+  max_items: 256
+
+  defaults:
+    mode: both
+    jpeg_quality: 90
+
+  cases:
+    - name: speed_lena_topk_sweep
+      codec_config: ../../configs/speed.yml
+      mode: both
+      jpeg_quality: 90
+      image: ../../tests/test-data/lena-colour.png
+      channels: 3
+      size: 256
+      encode:
+        topk:
+          start: 16
+          stop: 64
+          step: 16
+        lsh_budget: [512, 1024, 2048]
+      decode:
+        iterations: [6, 8]
+
+    - name: decode_only_photo
+      codec_config: ../../configs/performance.yml
+      mode: decode
+      image: ../../tests/test-data/lena-colour.png
+      channels: 3
+      size: 384
+      decode:
+        iterations: [8, 10, 12]
+
+    - name: encode_only_synth_stride_sweep
+      mode: encode
+      pattern: smooth
+      channels: 1
+      size: 256
+      jpeg_quality: 85
+      encode:
+        block: [8, 16]
+        stride:
+          start: 2
+          stop: 8
+          step: 2
+        topk: 32
+        backend: dot
+        max_domains: 2000

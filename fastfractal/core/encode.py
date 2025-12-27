@@ -86,7 +86,9 @@ def pad_to_multiple(
     if ph == 0 and pw == 0:
         return img, h, w
     if img.ndim == 2:
-        out = np.pad(img, ((0, ph), (0, pw)), mode="edge").astype(np.float32, copy=False)
+        out = np.pad(img, ((0, ph), (0, pw)), mode="edge").astype(
+            np.float32, copy=False
+        )
     else:
         out = np.pad(img, ((0, ph), (0, pw), (0, 0)), mode="edge").astype(
             np.float32, copy=False
@@ -265,12 +267,14 @@ def build_pool(
             k = di * 8 + t
             map_dom[k] = np.uint32(di)
             map_tf[k] = np.uint8(t)
-            proxy_raw[k, :] = apply_transform_2d(dproxy, t).reshape(-1).astype(
-                np.float32, copy=False
+            proxy_raw[k, :] = (
+                apply_transform_2d(dproxy, t).reshape(-1).astype(np.float32, copy=False)
             )
             for ch in range(c):
-                tf_flat[k, ch, :] = apply_transform_2d(domc[ch], t).reshape(-1).astype(
-                    np.float32, copy=False
+                tf_flat[k, ch, :] = (
+                    apply_transform_2d(domc[ch], t)
+                    .reshape(-1)
+                    .astype(np.float32, copy=False)
                 )
 
     proxy_mat = normalize_rows(proxy_raw.astype(np.float32, copy=False))
@@ -278,7 +282,9 @@ def build_pool(
     bucket_entries: list[NDArray[np.int64]] = []
     if use_buckets:
         for b in range(bucket_count):
-            idx = np.nonzero(entry_bucket == np.uint8(b))[0].astype(np.int64, copy=False)
+            idx = np.nonzero(entry_bucket == np.uint8(b))[0].astype(
+                np.int64, copy=False
+            )
             bucket_entries.append(idx)
     else:
         bucket_entries = [np.arange(proxy_mat.shape[0], dtype=np.int64)]
@@ -293,7 +299,9 @@ def build_pool(
     if backend == "lsh":
         lsh = LSHIndex.build(proxy_mat, planes=lsh_planes, seed=seed)
     elif backend == "pca_lsh":
-        p = fit_pca(proxy_mat, dim=pca_dim, sample=min(5000, proxy_mat.shape[0]), seed=seed)
+        p = fit_pca(
+            proxy_mat, dim=pca_dim, sample=min(5000, proxy_mat.shape[0]), seed=seed
+        )
         pca_mean = p.mean
         pca_basis = p.basis
         proj = p.project_matrix(proxy_mat)
@@ -341,7 +349,9 @@ def pool_query_candidates(
                 cand2 = cand
         else:
             cand2 = cand
-        return topk_from_subset(pool.proxy_mat, q, cand2.astype(np.int64, copy=False), topk)
+        return topk_from_subset(
+            pool.proxy_mat, q, cand2.astype(np.int64, copy=False), topk
+        )
 
     if pool.backend == "pca_lsh":
         if pool.lsh is None or pool.pca_mean is None or pool.pca_basis is None:
@@ -358,7 +368,9 @@ def pool_query_candidates(
                 cand2 = cand
         else:
             cand2 = cand
-        return topk_from_subset(pool.proxy_mat, q, cand2.astype(np.int64, copy=False), topk)
+        return topk_from_subset(
+            pool.proxy_mat, q, cand2.astype(np.int64, copy=False), topk
+        )
 
     raise ValueError("bad backend")
 
@@ -422,7 +434,9 @@ def encode_leaf(
                 qo = quant_o(o1, o_min, o_max)
                 s2 = dequant_s(qs, s_clip)
                 o2 = dequant_o(qo, o_min, o_max)
-                diff = (np.float32(s2) * domv + np.float32(o2) - r).astype(np.float32, copy=False)
+                diff = (np.float32(s2) * domv + np.float32(o2) - r).astype(
+                    np.float32, copy=False
+                )
                 mse = float(np.dot(diff, diff) / float(n_pix))
                 if mse < best_mse:
                     best_mse = mse
@@ -431,7 +445,9 @@ def encode_leaf(
                     best_q[0, 0] = np.uint8(qs)
                     best_q[0, 1] = np.uint8(qo)
             else:
-                diff = (np.float32(s1) * domv + np.float32(o1) - r).astype(np.float32, copy=False)
+                diff = (np.float32(s1) * domv + np.float32(o1) - r).astype(
+                    np.float32, copy=False
+                )
                 mse = float(np.dot(diff, diff) / float(n_pix))
                 if mse < best_mse:
                     best_mse = mse
@@ -509,10 +525,19 @@ def encode_array(
     lsh_planes: int = 16,
     seed: int = 0,
     max_domains: int | None = None,
+    block: int | None = None,
     iterations_hint: int = 8,
 ) -> FractalCode:
     if img.ndim not in (2, 3):
         raise ValueError("img must be HxW or HxWxC")
+
+    if block is not None:
+        b = int(block)
+        if b <= 0:
+            raise ValueError("block must be positive")
+        min_block = b
+        max_block = b
+        use_quadtree = False
 
     orig_h = int(img.shape[0])
     orig_w = int(img.shape[1])
@@ -541,7 +566,11 @@ def encode_array(
     if use_buckets and bucket_count < 2:
         bucket_count = 2
 
-    s_sets = default_s_sets(bucket_count, s_clip) if use_s_sets else [[] for _ in range(bucket_count)]
+    s_sets = (
+        default_s_sets(bucket_count, s_clip)
+        if use_s_sets
+        else [[] for _ in range(bucket_count)]
+    )
 
     luma = rgb_to_luma(img2)
 
@@ -656,14 +685,18 @@ def encode_array(
     pool_offsets = np.zeros((len(pools) + 1,), dtype=np.uint32)
     for i, p in enumerate(pools):
         pool_offsets[i + 1] = pool_offsets[i] + np.uint32(p.domain_yx.shape[0])
-    domain_yx = np.concatenate([p.domain_yx for p in pools], axis=0).astype(np.uint16, copy=False)
+    domain_yx = np.concatenate([p.domain_yx for p in pools], axis=0).astype(
+        np.uint16, copy=False
+    )
 
     leaf_codes_q: NDArray[np.uint8] | None = None
     leaf_codes_f: NDArray[np.float32] | None = None
     if quantized:
         leaf_codes_q = np.stack(leaf_codes_q_list, axis=0).astype(np.uint8, copy=False)
     else:
-        leaf_codes_f = np.stack(leaf_codes_f_list, axis=0).astype(np.float32, copy=False)
+        leaf_codes_f = np.stack(leaf_codes_f_list, axis=0).astype(
+            np.float32, copy=False
+        )
 
     return FractalCode(
         height=h,
@@ -712,6 +745,7 @@ def encode_to_file(
     lsh_planes: int = 16,
     seed: int = 0,
     max_domains: int | None = None,
+    block: int | None = None,
 ) -> None:
     img = load_image(input_path)
     code = encode_array(
@@ -738,3 +772,53 @@ def encode_to_file(
         max_domains=max_domains,
     )
     save_code(output_path, code)
+
+
+def encode(
+    input_path: Path,
+    output_path: Path,
+    min_block: int = 4,
+    max_block: int = 16,
+    stride: int = 4,
+    use_quadtree: bool = False,
+    max_mse: float = 0.0025,
+    use_buckets: bool = False,
+    bucket_count: int = 8,
+    use_s_sets: bool = False,
+    topk: int = 64,
+    backend: str = "dot",
+    lsh_budget: int = 2048,
+    entropy_thresh: float = 0.0,
+    quantized: bool = False,
+    s_clip: float = 0.99,
+    o_min: float = -0.5,
+    o_max: float = 1.5,
+    pca_dim: int = 16,
+    lsh_planes: int = 16,
+    seed: int = 0,
+    max_domains: int | None = None,
+) -> None:
+    encode_to_file(
+        input_path=input_path,
+        output_path=output_path,
+        min_block=min_block,
+        max_block=max_block,
+        stride=stride,
+        use_quadtree=use_quadtree,
+        max_mse=max_mse,
+        use_buckets=use_buckets,
+        bucket_count=bucket_count,
+        use_s_sets=use_s_sets,
+        topk=topk,
+        backend=backend,
+        lsh_budget=lsh_budget,
+        entropy_thresh=entropy_thresh,
+        quantized=quantized,
+        s_clip=s_clip,
+        o_min=o_min,
+        o_max=o_max,
+        pca_dim=pca_dim,
+        lsh_planes=lsh_planes,
+        seed=seed,
+        max_domains=max_domains,
+    )
