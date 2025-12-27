@@ -2,7 +2,12 @@ name: ci
 
 on:
   push:
+    branches: ["main", "master"]
   pull_request:
+  
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   test:
@@ -38,3 +43,29 @@ jobs:
 
       - name: Tests
         run: uv run pytest -c pytest_tests.ini
+  
+  coverage:
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv + set Python
+        uses: astral-sh/setup-uv@v7
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install project
+        run: uv sync --locked --all-extras --dev
+
+      - name: Tests + coverage
+        run: uv run pytest -c pytest_tests.ini --cov=fastfractal --cov-report=xml:coverage.xml
+
+      - name: Upload coverage to Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ github.token }}
+          file: coverage.xml
+          format: cobertura
