@@ -1,0 +1,45 @@
+version: 1
+name: advanced_features
+
+defaults:
+  mode: RGB
+  pipeline: both
+  decode_iterations: 10
+  encoder:
+    max_block: 16
+    min_block: 8
+    stride: 4
+    topk: 16
+    entropy_thresh: 0.0
+    max_domains: 256
+    use_quadtree: false
+    quantized: true
+
+cases:
+  - id: baseline_dot_q
+    image: tests/test-data/lena-colour.png
+
+  - id: baseline_dot_q_gray
+    image: tests/test-data/lena-gray.png
+    mode: L
+
+  - id: adv_pca_dim16
+    image: tests/test-data/lena-colour.png
+    encoder:
+      pca_dim: 16
+
+  - id: adv_pca_sweep
+    image: tests/test-data/lena-colour.png
+    encoder:
+      pca_dim: [8, 16, 24, 32]
+
+  - id: adv_buckets
+    image: tests/test-data/lena-colour.png
+    encoder:
+      use_buckets: true
+      bucket_count: 8
+
+  - id: adv_s_sets
+    image: tests/test-data/lena-colour.png
+    encoder:
+      use_s_sets: true

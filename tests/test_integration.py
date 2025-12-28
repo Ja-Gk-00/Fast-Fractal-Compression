@@ -211,7 +211,9 @@ def test_integration_encode_decode_file_pipeline(
         from fastfractal.core.decode import decode_to_file
         from fastfractal.core.encode import encode_to_file
     except Exception:
-        pytest.skip("encode_to_file/decode_to_file not available")
+        pytest.skip(
+            "encode_to_file/decode_to_file not available", allow_module_level=True
+        )
 
     out_code = tmp_path / f"{img_path.stem}.{preset.name}.ffc"
     out_img = tmp_path / f"{img_path.stem}.{preset.name}.decoded.png"

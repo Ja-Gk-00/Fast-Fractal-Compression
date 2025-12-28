@@ -1,0 +1,13 @@
+general:
+  max_block: 16
+  min_block: 8
+  stride: 4
+  entropy_thresh: 0.0
+  max_domains: 256
+  use_quadtree: false
+  quantized: false
+  name: demo
+optional:
+  maybe_null: null
+flags:
+  enabled: 1
