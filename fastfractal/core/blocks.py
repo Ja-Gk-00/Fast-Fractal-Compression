@@ -1,55 +1,65 @@
-from __future__ import annotations
-
-from collections.abc import Iterator
-from dataclasses import dataclass
-
 import numpy as np
-from numpy.typing import NDArray
+
+from fastfractal._cext_backend import cext
 
 
-@dataclass(frozen=True, slots=True)
-class Grid:
-    height: int
-    width: int
-    block: int
-
-    @property
-    def ranges_h(self) -> int:
-        return self.height // self.block
-
-    @property
-    def ranges_w(self) -> int:
-        return self.width // self.block
-
-    def iter_ranges(self) -> Iterator[tuple[int, int, int]]:
-        idx = 0
-        for ry in range(self.ranges_h):
-            y = ry * self.block
-            for rx in range(self.ranges_w):
-                x = rx * self.block
-                yield idx, y, x
-                idx += 1
+def domains_yx(h: int, w: int, block: int, stride: int) -> np.ndarray:
+    if cext.has("domains_yx"):
+        return cext.call("domains_yx", int(h), int(w), int(block), int(stride))
+    return _domains_yx_py(h, w, block, stride)
 
 
-def iter_domains(
-    height: int, width: int, block: int, stride: int
-) -> Iterator[tuple[int, int, int]]:
-    d = 2 * block
-    idx = 0
-    for y in range(0, height - d + 1, stride):
-        for x in range(0, width - d + 1, stride):
-            yield idx, y, x
-            idx += 1
+def _domains_yx_py(h: int, w: int, block: int, stride: int) -> np.ndarray:
+    if block <= 0:
+        raise ValueError("block must be > 0")
+    if stride <= 0:
+        raise ValueError("stride must be > 0")
+    if block > h or block > w:
+        return np.zeros((0, 2), dtype=np.uint16)
+
+    lim_y = h - block
+    lim_x = w - block
+    ys = np.arange(0, lim_y + 1, stride, dtype=np.int32)
+    xs = np.arange(0, lim_x + 1, stride, dtype=np.int32)
+    yy, xx = np.meshgrid(ys, xs, indexing="ij")
+    out = np.stack([yy.reshape(-1), xx.reshape(-1)], axis=1)
+
+    if out.size == 0:
+        return np.zeros((0, 2), dtype=np.uint16)
+
+    if out.max() > np.iinfo(np.uint16).max:
+        raise ValueError("domains_yx coordinates exceed uint16 range")
+
+    return out.astype(np.uint16, copy=False)
 
 
-def extract_range(
-    img: NDArray[np.float32], y: int, x: int, block: int
-) -> NDArray[np.float32]:
-    return img[y : y + block, x : x + block].astype(np.float32, copy=False)
+def extract_range(img: np.ndarray, y: int, x: int, block: int) -> np.ndarray:
+    return img[y : y + block, x : x + block]
 
 
-def extract_domain(
-    img: NDArray[np.float32], y: int, x: int, block: int
-) -> NDArray[np.float32]:
-    d = 2 * block
-    return img[y : y + d, x : x + d].astype(np.float32, copy=False)
+def ranges_yx(h: int, w: int, block: int) -> np.ndarray:
+    if cext.has("ranges_yx"):
+        return cext.call("ranges_yx", int(h), int(w), int(block))
+    return _ranges_yx_py(h, w, block)
+
+
+def _ranges_yx_py(h: int, w: int, block: int) -> np.ndarray:
+    if block <= 0:
+        raise ValueError("block must be > 0")
+    if block > h or block > w:
+        return np.zeros((0, 2), dtype=np.uint16)
+
+    lim_y = h - block
+    lim_x = w - block
+    ys = np.arange(0, lim_y + 1, block, dtype=np.int32)
+    xs = np.arange(0, lim_x + 1, block, dtype=np.int32)
+    yy, xx = np.meshgrid(ys, xs, indexing="ij")
+    out = np.stack([yy.reshape(-1), xx.reshape(-1)], axis=1)
+
+    if out.size == 0:
+        return np.zeros((0, 2), dtype=np.uint16)
+
+    if out.max() > np.iinfo(np.uint16).max:
+        raise ValueError("ranges_yx coordinates exceed uint16 range")
+
+    return out.astype(np.uint16, copy=False)

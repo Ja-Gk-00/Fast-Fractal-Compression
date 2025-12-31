@@ -6,85 +6,145 @@ from pathlib import Path
 import numpy as np
 from numpy.typing import NDArray
 
-from fastfractal import _cext  # type: ignore
-from fastfractal.core.blocks import extract_range, iter_domains
-from fastfractal.core.search import (
-    LSHIndex,
-    SearchBackend,
-    fit_pca,
-    normalize_rows,
-    topk_from_subset,
-)
+from fastfractal._cext_backend import get, has
+from fastfractal.core.blocks import domains_yx
 from fastfractal.core.transforms import apply_transform_2d
 from fastfractal.core.types import FractalCode
 from fastfractal.io.codebook import save_code
 from fastfractal.io.imageio import load_image
-from fastfractal.utils.entropy import entropy01
+
+import os
+from fastfractal._cext_backend import cext
 
 
-def _has_cext() -> bool:
-    return hasattr(_cext, "downsample2x2") and hasattr(_cext, "linreg_error")
+def downsample2x2(dom: np.ndarray) -> np.ndarray:
+    if cext.has("downsample2x2"):
+        return np.asarray(cext.call("downsample2x2", dom), dtype=np.float32)
 
-
-def downsample2x2(x: NDArray[np.float32]) -> NDArray[np.float32]:
-    if _has_cext():
-        return _cext.downsample2x2(x)  # type: ignore[no-any-return]
-    h, w = x.shape
-    return (
-        x.reshape(h // 2, 2, w // 2, 2).mean(axis=(1, 3)).astype(np.float32, copy=False)
+    dom = np.asarray(dom, dtype=np.float32)
+    h, w = dom.shape[:2]
+    if h % 2 or w % 2:
+        raise ValueError("downsample2x2 expects even dimensions")
+    return 0.25 * (
+        dom[0::2, 0::2] + dom[1::2, 0::2] + dom[0::2, 1::2] + dom[1::2, 1::2]
     )
 
 
-def linreg_error(
-    d: NDArray[np.float32], r: NDArray[np.float32]
-) -> tuple[float, float, float]:
-    if _has_cext():
-        s, o, e = _cext.linreg_error(d, r)  # type: ignore[misc]
-        return float(s), float(o), float(e)
-    dv = d.astype(np.float64, copy=False)
-    rv = r.astype(np.float64, copy=False)
-    n = float(dv.size)
-    sumD = float(dv.sum())
-    sumR = float(rv.sum())
-    sumDD = float((dv * dv).sum())
-    sumRR = float((rv * rv).sum())
-    sumRD = float((dv * rv).sum())
-    denom = n * sumDD - sumD * sumD
-    if abs(denom) < 1e-18:
+def linreg_error(d: np.ndarray, r: np.ndarray) -> Tuple[float, float, float]:
+    """
+    Fit r ≈ s*d + o. Returns (s, o, mse).
+    """
+    if cext.has("linreg_error"):
+        s, o, err = cext.call("linreg_error", d, r)
+        return float(s), float(o), float(err)
+
+    d = np.asarray(d, dtype=np.float32).ravel()
+    r = np.asarray(r, dtype=np.float32).ravel()
+    if d.size != r.size:
+        raise ValueError("linreg_error: d and r must have same number of elements")
+    n = float(d.size)
+    sd = float(d.sum())
+    sr = float(r.sum())
+    sdd = float((d * d).sum())
+    sdr = float((d * r).sum())
+
+    denom = n * sdd - sd * sd
+    if denom == 0.0:
         s = 0.0
-        o = sumR / n
+        o = sr / n
     else:
-        s = (n * sumRD - sumD * sumR) / denom
-        o = (sumR - s * sumD) / n
-    err = (
-        sumRR
-        + s * s * sumDD
-        + n * o * o
-        - 2.0 * s * sumRD
-        - 2.0 * o * sumR
-        + 2.0 * s * o * sumD
-    )
-    return float(s), float(o), float(err)
+        s = (n * sdr - sd * sr) / denom
+        o = (sr - s * sd) / n
+
+    diff = s * d + o - r
+    mse = float((diff * diff).mean())
+    return float(s), float(o), mse
 
 
-def rgb_to_luma(img: NDArray[np.float32]) -> NDArray[np.float32]:
-    if img.ndim == 2:
-        return img
-    r = img[:, :, 0]
-    g = img[:, :, 1]
-    b = img[:, :, 2]
-    return (0.2989 * r + 0.5870 * g + 0.1140 * b).astype(np.float32, copy=False)
+def _has_topk_dot() -> bool:
+    return cext.has("topk_dot")
 
 
-def pad_to_multiple(
+def _topk_dot_numpy(d: np.ndarray, q: np.ndarray, k: int) -> np.ndarray:
+    scores = d @ q
+    if k <= 0:
+        return np.empty((0,), dtype=np.int64)
+    if k >= scores.size:
+        return np.argsort(scores)[::-1].astype(np.int64, copy=False)
+    idx = np.argpartition(scores, -k)[-k:]
+    idx = idx[np.argsort(scores[idx])[::-1]]
+    return idx.astype(np.int64, copy=False)
+
+
+def _cext_topk_dot(
+    ranges: NDArray[np.float32],
+    domains: NDArray[np.float32],
+    topk: int,
+) -> tuple[NDArray[np.int64], NDArray[np.float32]]:
+    r = np.ascontiguousarray(ranges, dtype=np.float32)
+    d = np.ascontiguousarray(domains, dtype=np.float32)
+
+    if r.ndim == 1:
+        r = r.reshape(1, -1)
+
+    try:
+        out = cext.call("topk_dot", r, d, int(topk))
+        idx, val = out
+        idx = np.asarray(idx, dtype=np.int64)
+        val = np.asarray(val, dtype=np.float32)
+        if idx.ndim == 1:
+            idx = idx.reshape(1, -1)
+            val = val.reshape(1, -1)
+        return idx, val
+    except (TypeError, ValueError):
+        pass
+
+    if r.shape[0] == 1:
+        q = np.ascontiguousarray(r[0], dtype=np.float32).ravel()
+        out = cext.call("topk_dot", d, q, int(topk))
+
+        if isinstance(out, tuple) and len(out) == 2:
+            idx, val = out
+            idx = np.asarray(idx, dtype=np.int64).ravel()
+            val = np.asarray(val, dtype=np.float32).ravel()
+        else:
+            idx = np.asarray(out, dtype=np.int64).ravel()
+
+            val = (d[idx] @ q).astype(np.float32, copy=False)
+
+        return idx.reshape(1, -1), val.reshape(1, -1)
+
+    scores = r @ d.T
+    K = scores.shape[1]
+    k = int(topk)
+    if k >= K:
+        idx = np.argsort(-scores, axis=1)
+        val = np.take_along_axis(scores, idx, axis=1).astype(np.float32, copy=False)
+        return idx.astype(np.int64, copy=False), val
+
+    part = np.argpartition(scores, K - k, axis=1)[:, -k:]
+    row = np.arange(scores.shape[0])[:, None]
+    vals = scores[row, part]
+    order = np.argsort(-vals, axis=1)
+    idx = part[row, order]
+    val = vals[row, order].astype(np.float32, copy=False)
+    return idx.astype(np.int64, copy=False), val
+
+
+def _pad_to_multiple(
     img: NDArray[np.float32], block: int
 ) -> tuple[NDArray[np.float32], int, int]:
+    """
+    Pads bottom/right with edge values to make H,W multiples of block.
+    Returns (padded_img, orig_h, orig_w).
+    """
     h = int(img.shape[0])
     w = int(img.shape[1])
     ph = (block - (h % block)) % block
     pw = (block - (w % block)) % block
     if ph == 0 and pw == 0:
-        return img, h, w
+        return img.astype(np.float32, copy=False), h, w
+
     if img.ndim == 2:
         out = np.pad(img, ((0, ph), (0, pw)), mode="edge").astype(
             np.float32, copy=False
@@ -96,411 +156,160 @@ def pad_to_multiple(
     return out, h, w
 
 
-def var01(x: NDArray[np.float32]) -> float:
-    m = float(np.mean(x))
-    d = x.astype(np.float32, copy=False) - np.float32(m)
-    return float(np.mean(d * d))
+def _to_gray(x: NDArray[np.float32]) -> NDArray[np.float32]:
+    if x.ndim == 2:
+        return x
+    r = x[:, :, 0]
+    g = x[:, :, 1]
+    b = x[:, :, 2]
+    return (0.2989 * r + 0.5870 * g + 0.1140 * b).astype(np.float32, copy=False)
 
 
-def bucket_id(ent: float, var: float, bucket_count: int) -> int:
-    vn = float(np.clip(var / 0.25, 0.0, 1.0))
-    s = 0.5 * float(np.clip(ent, 0.0, 1.0)) + 0.5 * vn
-    i = int(s * bucket_count)
-    if i >= bucket_count:
-        return bucket_count - 1
-    if i < 0:
-        return 0
-    return i
+def _normalize_rows(mat: NDArray[np.float32], eps: float = 1e-8) -> NDArray[np.float32]:
+    """
+    Row-wise zero-mean + L2 normalize. Gives cosine-sim via dot product.
+    """
+    m = mat.astype(np.float32, copy=False)
+    m = m - m.mean(axis=1, keepdims=True)
+    n = np.sqrt(np.sum(m * m, axis=1, keepdims=True))
+    n = np.maximum(n, eps)
+    return (m / n).astype(np.float32, copy=False)
 
 
-def default_s_sets(bucket_count: int, s_clip: float) -> list[list[float]]:
-    out: list[list[float]] = []
-    for i in range(bucket_count):
-        t = 0.0 if bucket_count <= 1 else float(i) / float(bucket_count - 1)
-        mx = 0.2 + 0.79 * t
-        mx = float(np.clip(mx, 0.05, s_clip))
-        vals = np.linspace(0.0, mx, 5, dtype=np.float64)
-        sset = [float(v) for v in vals]
-        if i >= bucket_count // 2:
-            neg = [-float(v) for v in vals[1:3]]
-            sset = neg + sset
-        out.append(sset)
-    return out
+def _normalize_vec(v: NDArray[np.float32], eps: float = 1e-8) -> NDArray[np.float32]:
+    vv = v.astype(np.float32, copy=False).reshape(-1)
+    vv = vv - np.float32(vv.mean())
+    n = float(np.sqrt(np.dot(vv, vv)))
+    if n < eps:
+        return vv * 0.0
+    return (vv / np.float32(n)).astype(np.float32, copy=False)
 
 
-def quant_s(s: float, s_clip: float) -> int:
+def _quant_s(s: float, s_clip: float) -> int:
     sc = float(np.clip(s, -s_clip, s_clip))
     q = int(np.rint((sc + s_clip) * 255.0 / (2.0 * s_clip)))
-    if q < 0:
-        return 0
-    if q > 255:
-        return 255
-    return q
+    return int(np.clip(q, 0, 255))
 
 
-def dequant_s(q: int, s_clip: float) -> float:
+def _dequant_s(q: int, s_clip: float) -> float:
     return float(q) * (2.0 * s_clip) / 255.0 - s_clip
 
 
-def quant_o(o: float, o_min: float, o_max: float) -> int:
+def _quant_o(o: float, o_min: float, o_max: float) -> int:
     oc = float(np.clip(o, o_min, o_max))
     q = int(np.rint((oc - o_min) * 255.0 / (o_max - o_min)))
-    if q < 0:
-        return 0
-    if q > 255:
-        return 255
-    return q
+    return int(np.clip(q, 0, 255))
 
 
-def dequant_o(q: int, o_min: float, o_max: float) -> float:
+def _dequant_o(q: int, o_min: float, o_max: float) -> float:
     return o_min + float(q) * (o_max - o_min) / 255.0
 
 
-def choose_s_from_set(s: float, sset: list[float]) -> float:
-    if not sset:
-        return s
-    arr = np.asarray(sset, dtype=np.float64)
-    i = int(np.argmin(np.abs(arr - float(s))))
-    return float(arr[i])
-
-
-@dataclass(frozen=True, slots=True)
-class PoolRuntime:
+@dataclass(frozen=True)
+class _Pool:
     block: int
     stride: int
     domain_yx: NDArray[np.uint16]
-    tf_flat: NDArray[np.float32]
-    proxy_mat: NDArray[np.float32]
-    map_dom: NDArray[np.uint32]
-    map_tf: NDArray[np.uint8]
-    entry_bucket: NDArray[np.uint8]
-    bucket_entries: list[NDArray[np.int64]]
-    backend: str
-    lsh: LSHIndex | None
-    pca_mean: NDArray[np.float32] | None
-    pca_basis: NDArray[np.float32] | None
+    dom_feat: NDArray[np.float32]
 
 
-def build_pool(
-    img: NDArray[np.float32],
+def _build_pool(
+    img_gray: NDArray[np.float32],
     block: int,
     stride: int,
-    entropy_thresh: float,
-    bucket_count: int,
-    use_buckets: bool,
-    backend: str,
-    pca_dim: int,
-    lsh_planes: int,
-    seed: int,
+    *,
     max_domains: int | None,
-) -> PoolRuntime:
-    h = int(img.shape[0])
-    w = int(img.shape[1])
-    c = 1 if img.ndim == 2 else int(img.shape[2])
+    seed: int,
+) -> _Pool:
+    """
+    Build a single pool for a given block size b.
+    Domains are extracted from (2b x 2b), downsampled to (b x b), flattened, normalized.
+    domain_yx generated via fastfractal.core.blocks.domains_yx (C-accelerated when available).
+    """
+    h, w = int(img_gray.shape[0]), int(img_gray.shape[1])
 
-    luma = rgb_to_luma(img)
-    dom_xy: list[tuple[int, int]] = []
-    dom_proxy: list[NDArray[np.float32]] = []
-    dom_ch: list[NDArray[np.float32]] = []
-    dom_ent: list[float] = []
-    dom_var: list[float] = []
+    yx = domains_yx(h, w, int(block), int(stride))
+    if yx.shape[0] == 0:
+        raise ValueError(f"domain pool empty for block={block} (need H,W >= 2*block)")
 
-    for _, y, x in iter_domains(h, w, block, stride):
-        d2 = luma[y : y + 2 * block, x : x + 2 * block]
-        ds = downsample2x2(d2)
-        if entropy_thresh > 0.0:
-            if entropy01(ds) < entropy_thresh:
-                continue
-
-        dom_xy.append((y, x))
-        dom_proxy.append(ds.astype(np.float32, copy=False))
-
-        if use_buckets:
-            dom_ent.append(entropy01(ds))
-            dom_var.append(var01(ds))
-
-        if c == 1:
-            dch = downsample2x2(img[y : y + 2 * block, x : x + 2 * block]).astype(
-                np.float32, copy=False
-            )
-            dom_ch.append(dch[None, :, :])
-        else:
-            chans: list[NDArray[np.float32]] = []
-            for ch in range(c):
-                dcc = img[y : y + 2 * block, x : x + 2 * block, ch]
-                chans.append(downsample2x2(dcc).astype(np.float32, copy=False))
-            dom_ch.append(np.stack(chans, axis=0))
-
-    if max_domains is not None and len(dom_xy) > max_domains:
-        rng = np.random.default_rng(seed)
-        keep = rng.choice(len(dom_xy), size=max_domains, replace=False)
+    if max_domains is not None and int(yx.shape[0]) > int(max_domains):
+        rng = np.random.default_rng(int(seed) + int(block) * 101)
+        keep = rng.choice(int(yx.shape[0]), size=int(max_domains), replace=False)
         keep.sort()
-        dom_xy = [dom_xy[i] for i in keep]
-        dom_proxy = [dom_proxy[i] for i in keep]
-        dom_ch = [dom_ch[i] for i in keep]
-        if use_buckets:
-            dom_ent = [dom_ent[i] for i in keep]
-            dom_var = [dom_var[i] for i in keep]
+        yx = yx[keep].astype(np.uint16, copy=False)
 
-    dcount = len(dom_xy)
-    if dcount == 0:
-        raise ValueError("domain pool empty")
+    K = int(yx.shape[0])
+    feats = np.empty((K, int(block) * int(block)), dtype=np.float32)
 
-    yx = np.asarray(dom_xy, dtype=np.uint16)
-    n_pix = block * block
-    tf_flat = np.empty((dcount * 8, c, n_pix), dtype=np.float32)
-    proxy_raw = np.empty((dcount * 8, n_pix), dtype=np.float32)
-    map_dom = np.empty((dcount * 8,), dtype=np.uint32)
-    map_tf = np.empty((dcount * 8,), dtype=np.uint8)
+    for k in range(K):
+        dy = int(yx[k, 0])
+        dx = int(yx[k, 1])
+        dom2 = img_gray[dy : dy + 2 * block, dx : dx + 2 * block]
+        ds = downsample2x2(dom2)
+        feats[k, :] = ds.reshape(-1).astype(np.float32, copy=False)
 
-    entry_bucket = np.zeros((dcount * 8,), dtype=np.uint8)
-    if use_buckets:
-        for di in range(dcount):
-            bid = bucket_id(dom_ent[di], dom_var[di], bucket_count)
-            for t in range(8):
-                entry_bucket[di * 8 + t] = np.uint8(bid)
+    feats = _normalize_rows(np.ascontiguousarray(feats, dtype=np.float32))
 
-    for di in range(dcount):
-        domc = dom_ch[di]
-        dproxy = dom_proxy[di]
-        for t in range(8):
-            k = di * 8 + t
-            map_dom[k] = np.uint32(di)
-            map_tf[k] = np.uint8(t)
-            proxy_raw[k, :] = (
-                apply_transform_2d(dproxy, t).reshape(-1).astype(np.float32, copy=False)
-            )
-            for ch in range(c):
-                tf_flat[k, ch, :] = (
-                    apply_transform_2d(domc[ch], t)
-                    .reshape(-1)
-                    .astype(np.float32, copy=False)
-                )
-
-    proxy_mat = normalize_rows(proxy_raw.astype(np.float32, copy=False))
-
-    bucket_entries: list[NDArray[np.int64]] = []
-    if use_buckets:
-        for b in range(bucket_count):
-            idx = np.nonzero(entry_bucket == np.uint8(b))[0].astype(
-                np.int64, copy=False
-            )
-            bucket_entries.append(idx)
-    else:
-        bucket_entries = [np.arange(proxy_mat.shape[0], dtype=np.int64)]
-
-    if backend not in SearchBackend:
-        raise ValueError("bad backend")
-
-    lsh: LSHIndex | None = None
-    pca_mean: NDArray[np.float32] | None = None
-    pca_basis: NDArray[np.float32] | None = None
-
-    if backend == "lsh":
-        lsh = LSHIndex.build(proxy_mat, planes=lsh_planes, seed=seed)
-    elif backend == "pca_lsh":
-        p = fit_pca(
-            proxy_mat, dim=pca_dim, sample=min(5000, proxy_mat.shape[0]), seed=seed
-        )
-        pca_mean = p.mean
-        pca_basis = p.basis
-        proj = p.project_matrix(proxy_mat)
-        lsh = LSHIndex.build(proj, planes=lsh_planes, seed=seed)
-
-    return PoolRuntime(
-        block=block,
-        stride=stride,
-        domain_yx=yx,
-        tf_flat=tf_flat,
-        proxy_mat=proxy_mat,
-        map_dom=map_dom,
-        map_tf=map_tf,
-        entry_bucket=entry_bucket,
-        bucket_entries=bucket_entries,
-        backend=backend,
-        lsh=lsh,
-        pca_mean=pca_mean,
-        pca_basis=pca_basis,
+    return _Pool(
+        block=int(block),
+        stride=int(stride),
+        domain_yx=np.ascontiguousarray(yx, dtype=np.uint16),
+        dom_feat=feats,
     )
 
 
-def pool_query_candidates(
-    pool: PoolRuntime,
-    q: NDArray[np.float32],
-    bid: int,
-    topk: int,
-    lsh_budget: int,
-) -> NDArray[np.int64]:
-    if pool.backend == "dot":
-        subset = pool.bucket_entries[bid]
-        return topk_from_subset(pool.proxy_mat, q, subset, topk)
-
-    if pool.backend == "lsh":
-        if pool.lsh is None:
-            raise ValueError("missing lsh")
-        cand = pool.lsh.query(q, budget=lsh_budget)
-        if cand.size == 0:
-            subset = pool.bucket_entries[bid]
-            return topk_from_subset(pool.proxy_mat, q, subset, topk)
-        if len(pool.bucket_entries) > 1:
-            m = pool.entry_bucket[cand] == np.uint8(bid)
-            cand2 = cand[m]
-            if cand2.size == 0:
-                cand2 = cand
-        else:
-            cand2 = cand
-        return topk_from_subset(
-            pool.proxy_mat, q, cand2.astype(np.int64, copy=False), topk
+def _build_pools(
+    img_gray: NDArray[np.float32],
+    min_block: int,
+    max_block: int,
+    stride: int,
+    *,
+    max_domains: int | None,
+    seed: int,
+) -> list[_Pool]:
+    pools: list[_Pool] = []
+    b = int(min_block)
+    while b <= int(max_block):
+        pools.append(
+            _build_pool(img_gray, b, stride, max_domains=max_domains, seed=seed)
         )
-
-    if pool.backend == "pca_lsh":
-        if pool.lsh is None or pool.pca_mean is None or pool.pca_basis is None:
-            raise ValueError("missing pca/lsh")
-        q2 = (q - pool.pca_mean) @ pool.pca_basis.T
-        cand = pool.lsh.query(q2.astype(np.float32, copy=False), budget=lsh_budget)
-        if cand.size == 0:
-            subset = pool.bucket_entries[bid]
-            return topk_from_subset(pool.proxy_mat, q, subset, topk)
-        if len(pool.bucket_entries) > 1:
-            m = pool.entry_bucket[cand] == np.uint8(bid)
-            cand2 = cand[m]
-            if cand2.size == 0:
-                cand2 = cand
-        else:
-            cand2 = cand
-        return topk_from_subset(
-            pool.proxy_mat, q, cand2.astype(np.int64, copy=False), topk
-        )
-
-    raise ValueError("bad backend")
+        b *= 2
+    return pools
 
 
-def encode_leaf(
-    img: NDArray[np.float32],
-    luma: NDArray[np.float32],
-    pool: PoolRuntime,
-    y: int,
-    x: int,
-    bucket_count: int,
-    use_buckets: bool,
-    use_s_sets: bool,
-    s_sets: list[list[float]],
-    s_clip: float,
-    o_min: float,
-    o_max: float,
-    quantized: bool,
-    topk: int,
-    lsh_budget: int,
-) -> tuple[int, int, NDArray[np.uint8] | NDArray[np.float32], float]:
-    b = pool.block
-    c = 1 if img.ndim == 2 else int(img.shape[2])
+def _topk_select(
+    range_vec_norm: NDArray[np.float32], dom_feat: NDArray[np.float32], topk: int
+) -> NDArray[np.int32]:
+    """
+    range_vec_norm: (N,) normalized
+    dom_feat: (K,N) normalized
+    """
+    K = int(dom_feat.shape[0])
+    tk = int(max(1, min(int(topk), K)))
 
-    if use_buckets:
-        rproxy2 = extract_range(luma, y, x, b).astype(np.float32, copy=False)
-        ent = entropy01(rproxy2)
-        vr = var01(rproxy2)
-        bid = bucket_id(ent, vr, bucket_count)
-    else:
-        bid = 0
+    r = np.ascontiguousarray(range_vec_norm.reshape(1, -1), dtype=np.float32)
+    d = np.ascontiguousarray(dom_feat, dtype=np.float32)
 
-    rproxy = extract_range(luma, y, x, b).reshape(1, -1).astype(np.float32, copy=False)
-    q = normalize_rows(rproxy)[0]
-    cand = pool_query_candidates(pool, q, bid, topk=topk, lsh_budget=lsh_budget)
+    if _has_topk_dot():
+        idx, _ = _cext_topk_dot(r, d, tk)
+        return idx[0].astype(np.int32, copy=False)
 
-    n_pix = b * b
-    best_mse = float("inf")
-    best_dom = 0
-    best_tf = 0
+    scores = d @ r[0]
+    if tk >= int(scores.shape[0]):
+        return np.argsort(-scores).astype(np.int32, copy=False)
+    cand = np.argpartition(-scores, tk - 1)[:tk]
+    cand = cand[np.argsort(-scores[cand])]
+    return cand.astype(np.int32, copy=False)
 
-    if quantized:
-        best_q = np.zeros((c, 2), dtype=np.uint8)
-    else:
-        best_f = np.zeros((c, 2), dtype=np.float32)
 
-    def post_s(s0: float) -> float:
-        if use_s_sets and use_buckets:
-            return float(np.clip(choose_s_from_set(s0, s_sets[bid]), -s_clip, s_clip))
-        return float(np.clip(s0, -s_clip, s_clip))
-
-    if c == 1:
-        r = extract_range(img, y, x, b).reshape(-1).astype(np.float32, copy=False)
-        for ci in cand:
-            domv = pool.tf_flat[int(ci), 0, :]
-            s0, o0, _ = linreg_error(domv, r)
-            s1 = post_s(s0)
-            o1 = float(np.clip(o0, o_min, o_max))
-            if quantized:
-                qs = quant_s(s1, s_clip)
-                qo = quant_o(o1, o_min, o_max)
-                s2 = dequant_s(qs, s_clip)
-                o2 = dequant_o(qo, o_min, o_max)
-                diff = (np.float32(s2) * domv + np.float32(o2) - r).astype(
-                    np.float32, copy=False
-                )
-                mse = float(np.dot(diff, diff) / float(n_pix))
-                if mse < best_mse:
-                    best_mse = mse
-                    best_dom = int(pool.map_dom[int(ci)])
-                    best_tf = int(pool.map_tf[int(ci)])
-                    best_q[0, 0] = np.uint8(qs)
-                    best_q[0, 1] = np.uint8(qo)
-            else:
-                diff = (np.float32(s1) * domv + np.float32(o1) - r).astype(
-                    np.float32, copy=False
-                )
-                mse = float(np.dot(diff, diff) / float(n_pix))
-                if mse < best_mse:
-                    best_mse = mse
-                    best_dom = int(pool.map_dom[int(ci)])
-                    best_tf = int(pool.map_tf[int(ci)])
-                    best_f[0, 0] = np.float32(s1)
-                    best_f[0, 1] = np.float32(o1)
-    else:
-        rblk = img[y : y + b, x : x + b, :].astype(np.float32, copy=False)
-        rflat = np.transpose(rblk, (2, 0, 1)).reshape(c, -1)
-        for ci in cand:
-            mse_sum = 0.0
-            if quantized:
-                qtmp = np.zeros((c, 2), dtype=np.uint8)
-            else:
-                ftmp = np.zeros((c, 2), dtype=np.float32)
-            for ch in range(c):
-                domv = pool.tf_flat[int(ci), ch, :]
-                s0, o0, _ = linreg_error(domv, rflat[ch])
-                s1 = post_s(s0)
-                o1 = float(np.clip(o0, o_min, o_max))
-                if quantized:
-                    qs = quant_s(s1, s_clip)
-                    qo = quant_o(o1, o_min, o_max)
-                    s2 = dequant_s(qs, s_clip)
-                    o2 = dequant_o(qo, o_min, o_max)
-                    diff = (np.float32(s2) * domv + np.float32(o2) - rflat[ch]).astype(
-                        np.float32, copy=False
-                    )
-                    mse_sum += float(np.dot(diff, diff) / float(n_pix))
-                    qtmp[ch, 0] = np.uint8(qs)
-                    qtmp[ch, 1] = np.uint8(qo)
-                else:
-                    diff = (np.float32(s1) * domv + np.float32(o1) - rflat[ch]).astype(
-                        np.float32, copy=False
-                    )
-                    mse_sum += float(np.dot(diff, diff) / float(n_pix))
-                    ftmp[ch, 0] = np.float32(s1)
-                    ftmp[ch, 1] = np.float32(o1)
-
-            mse = mse_sum / float(c)
-            if mse < best_mse:
-                best_mse = mse
-                best_dom = int(pool.map_dom[int(ci)])
-                best_tf = int(pool.map_tf[int(ci)])
-                if quantized:
-                    best_q = qtmp
-                else:
-                    best_f = ftmp
-
-    if quantized:
-        return best_dom, best_tf, best_q, best_mse
-    return best_dom, best_tf, best_f, best_mse
+_ACCEPTED_BACKENDS: set[str] = {
+    "dot",
+    "lsh",
+    "pca_lsh",
+    "pca",
+    "pca_ann",
+    "ann",
+}
 
 
 def encode_array(
@@ -539,9 +348,25 @@ def encode_array(
         max_block = b
         use_quadtree = False
 
-    orig_h = int(img.shape[0])
-    orig_w = int(img.shape[1])
-    img2, _, _ = pad_to_multiple(img, max_block)
+    min_block = int(min_block)
+    max_block = int(max_block)
+    stride = int(stride)
+
+    if min_block <= 0 or max_block <= 0 or (max_block % min_block) != 0:
+        raise ValueError("bad blocks")
+    if (max_block & (max_block - 1)) != 0 or (min_block & (min_block - 1)) != 0:
+        raise ValueError("blocks must be powers of two")
+
+    backend = str(backend)
+    if backend not in _ACCEPTED_BACKENDS:
+        backend = "dot"
+
+    if not use_quadtree:
+        min_block = max_block
+
+    img2, orig_h, orig_w = _pad_to_multiple(
+        img.astype(np.float32, copy=False), max_block
+    )
     h = int(img2.shape[0])
     w = int(img2.shape[1])
 
@@ -549,59 +374,17 @@ def encode_array(
     if c not in (1, 3):
         raise ValueError("channels must be 1 or 3")
 
-    if min_block <= 0 or max_block <= 0 or (max_block % min_block) != 0:
-        raise ValueError("bad blocks")
-    if (max_block & (max_block - 1)) != 0 or (min_block & (min_block - 1)) != 0:
-        raise ValueError("blocks must be powers of two")
-    if backend not in SearchBackend:
-        raise ValueError("bad backend")
+    img_gray = _to_gray(img2)
 
-    if not use_quadtree:
-        min_block = max_block
-
-    if not use_buckets:
-        bucket_count = 1
-        use_s_sets = False
-
-    if use_buckets and bucket_count < 2:
-        bucket_count = 2
-
-    s_sets = (
-        default_s_sets(bucket_count, s_clip)
-        if use_s_sets
-        else [[] for _ in range(bucket_count)]
+    pools = _build_pools(
+        img_gray,
+        min_block=min_block,
+        max_block=max_block,
+        stride=stride,
+        max_domains=max_domains,
+        seed=int(seed),
     )
-
-    luma = rgb_to_luma(img2)
-
-    blocks: list[int] = []
-    b = max_block
-    while b >= min_block:
-        blocks.append(b)
-        if b == min_block:
-            break
-        b //= 2
-
-    pools: list[PoolRuntime] = []
-    for b in blocks:
-        pools.append(
-            build_pool(
-                img=img2,
-                block=b,
-                stride=stride,
-                entropy_thresh=entropy_thresh,
-                bucket_count=bucket_count,
-                use_buckets=use_buckets,
-                backend=backend,
-                pca_dim=pca_dim,
-                lsh_planes=lsh_planes,
-                seed=seed + b,
-                max_domains=max_domains,
-            )
-        )
-
-    if len(pools) > 255:
-        raise ValueError("too many pools")
+    pool_index = {p.block: i for i, p in enumerate(pools)}
 
     leaf_yx_list: list[tuple[int, int]] = []
     leaf_pool_list: list[int] = []
@@ -610,46 +393,156 @@ def encode_array(
     leaf_codes_q_list: list[NDArray[np.uint8]] = []
     leaf_codes_f_list: list[NDArray[np.float32]] = []
 
-    def pool_index_for_block(block: int) -> int:
-        for i, p in enumerate(pools):
-            if p.block == block:
-                return i
-        raise ValueError("missing pool")
+    def emit_leaf(y0: int, x0: int, b0: int) -> float:
+        pi = pool_index[int(b0)]
+        p = pools[pi]
 
-    def emit_leaf(y0: int, x0: int, block0: int) -> float:
-        pi = pool_index_for_block(block0)
-        pool = pools[pi]
-        dom, tf, codes, mse = encode_leaf(
-            img=img2,
-            luma=luma,
-            pool=pool,
-            y=y0,
-            x=x0,
-            bucket_count=bucket_count,
-            use_buckets=use_buckets,
-            use_s_sets=use_s_sets,
-            s_sets=s_sets,
-            s_clip=s_clip,
-            o_min=o_min,
-            o_max=o_max,
-            quantized=quantized,
-            topk=topk,
-            lsh_budget=lsh_budget,
+        r_proxy = (
+            img_gray[y0 : y0 + b0, x0 : x0 + b0]
+            .reshape(-1)
+            .astype(np.float32, copy=False)
         )
-        leaf_yx_list.append((y0, x0))
-        leaf_pool_list.append(pi)
-        leaf_dom_list.append(dom)
-        leaf_tf_list.append(tf)
+        qv = _normalize_vec(r_proxy)
+
+        cand = _topk_select(qv, p.dom_feat, int(topk))
+
+        n_pix = int(b0) * int(b0)
+        best_mse = float("inf")
+        best_dom = 0
+        best_tf = 0
+
         if quantized:
-            leaf_codes_q_list.append(codes.astype(np.uint8, copy=False))
+            best_q = np.zeros((c, 2), dtype=np.uint8)
         else:
-            leaf_codes_f_list.append(codes.astype(np.float32, copy=False))
-        return mse
+            best_f = np.zeros((c, 2), dtype=np.float32)
+
+        if c == 1:
+            rflat0 = (
+                img2[y0 : y0 + b0, x0 : x0 + b0]
+                .reshape(-1)
+                .astype(np.float32, copy=False)
+            )
+        else:
+            rblk = img2[y0 : y0 + b0, x0 : x0 + b0, :].astype(np.float32, copy=False)
+            rflat = np.transpose(rblk, (2, 0, 1)).reshape(c, -1)
+
+        for k in cand:
+            kk = int(k)
+            dy = int(p.domain_yx[kk, 0])
+            dx = int(p.domain_yx[kk, 1])
+
+            if c == 1:
+                dom2 = img2[dy : dy + 2 * b0, dx : dx + 2 * b0]
+                ds = downsample2x2(dom2)
+
+                for t in range(8):
+                    dt = (
+                        apply_transform_2d(ds, int(t))
+                        .reshape(-1)
+                        .astype(np.float32, copy=False)
+                    )
+                    s0, o0, _ = linreg_error(dt, rflat0)
+
+                    s1 = float(np.clip(s0, -float(s_clip), float(s_clip)))
+                    o1 = float(np.clip(o0, float(o_min), float(o_max)))
+
+                    if quantized:
+                        qs = _quant_s(s1, float(s_clip))
+                        qo = _quant_o(o1, float(o_min), float(o_max))
+                        s2 = _dequant_s(qs, float(s_clip))
+                        o2 = _dequant_o(qo, float(o_min), float(o_max))
+                        diff = (np.float32(s2) * dt + np.float32(o2) - rflat0).astype(
+                            np.float32, copy=False
+                        )
+                        mse = float(np.dot(diff, diff) / float(n_pix))
+                        if mse < best_mse:
+                            best_mse = mse
+                            best_dom = kk
+                            best_tf = t
+                            best_q[0, 0] = np.uint8(qs)
+                            best_q[0, 1] = np.uint8(qo)
+                    else:
+                        diff = (np.float32(s1) * dt + np.float32(o1) - rflat0).astype(
+                            np.float32, copy=False
+                        )
+                        mse = float(np.dot(diff, diff) / float(n_pix))
+                        if mse < best_mse:
+                            best_mse = mse
+                            best_dom = kk
+                            best_tf = t
+                            best_f[0, 0] = np.float32(s1)
+                            best_f[0, 1] = np.float32(o1)
+
+            else:
+                ds_ch: list[NDArray[np.float32]] = []
+                for ch in range(c):
+                    dom2c = img2[dy : dy + 2 * b0, dx : dx + 2 * b0, ch]
+                    ds_ch.append(downsample2x2(dom2c))
+
+                for t in range(8):
+                    mse_sum = 0.0
+                    if quantized:
+                        qtmp = np.zeros((c, 2), dtype=np.uint8)
+                    else:
+                        ftmp = np.zeros((c, 2), dtype=np.float32)
+
+                    for ch in range(c):
+                        dt = (
+                            apply_transform_2d(ds_ch[ch], int(t))
+                            .reshape(-1)
+                            .astype(np.float32, copy=False)
+                        )
+                        s0, o0, _ = linreg_error(dt, rflat[ch])
+
+                        s1 = float(np.clip(s0, -float(s_clip), float(s_clip)))
+                        o1 = float(np.clip(o0, float(o_min), float(o_max)))
+
+                        if quantized:
+                            qs = _quant_s(s1, float(s_clip))
+                            qo = _quant_o(o1, float(o_min), float(o_max))
+                            s2 = _dequant_s(qs, float(s_clip))
+                            o2 = _dequant_o(qo, float(o_min), float(o_max))
+                            diff = (
+                                np.float32(s2) * dt + np.float32(o2) - rflat[ch]
+                            ).astype(np.float32, copy=False)
+                            mse_sum += float(np.dot(diff, diff) / float(n_pix))
+                            qtmp[ch, 0] = np.uint8(qs)
+                            qtmp[ch, 1] = np.uint8(qo)
+                        else:
+                            diff = (
+                                np.float32(s1) * dt + np.float32(o1) - rflat[ch]
+                            ).astype(np.float32, copy=False)
+                            mse_sum += float(np.dot(diff, diff) / float(n_pix))
+                            ftmp[ch, 0] = np.float32(s1)
+                            ftmp[ch, 1] = np.float32(o1)
+
+                    mse = mse_sum / float(c)
+                    if mse < best_mse:
+                        best_mse = mse
+                        best_dom = kk
+                        best_tf = t
+                        if quantized:
+                            best_q = qtmp
+                        else:
+                            best_f = ftmp
+
+        leaf_yx_list.append((int(y0), int(x0)))
+        leaf_pool_list.append(int(pi))
+        leaf_dom_list.append(int(best_dom))
+        leaf_tf_list.append(int(best_tf))
+
+        if quantized:
+            leaf_codes_q_list.append(best_q.astype(np.uint8, copy=False))
+        else:
+            leaf_codes_f_list.append(best_f.astype(np.float32, copy=False))
+
+        return float(best_mse)
 
     def encode_node(y0: int, x0: int, block0: int) -> None:
         mse = emit_leaf(y0, x0, block0)
-        if mse <= max_mse or block0 <= min_block:
+        if mse <= float(max_mse) or block0 <= int(min_block):
             return
+
         leaf_yx_list.pop()
         leaf_pool_list.pop()
         leaf_dom_list.pop()
@@ -670,7 +563,7 @@ def encode_array(
             for x in range(0, w, max_block):
                 encode_node(y, x, max_block)
     else:
-        b0 = max_block
+        b0 = int(max_block)
         for y in range(0, h, b0):
             for x in range(0, w, b0):
                 emit_leaf(y, x, b0)
@@ -685,6 +578,7 @@ def encode_array(
     pool_offsets = np.zeros((len(pools) + 1,), dtype=np.uint32)
     for i, p in enumerate(pools):
         pool_offsets[i + 1] = pool_offsets[i] + np.uint32(p.domain_yx.shape[0])
+
     domain_yx = np.concatenate([p.domain_yx for p in pools], axis=0).astype(
         np.uint16, copy=False
     )
@@ -722,103 +616,16 @@ def encode_array(
     )
 
 
-def encode_to_file(
-    input_path: Path,
-    output_path: Path,
-    min_block: int = 4,
-    max_block: int = 16,
-    stride: int = 4,
-    use_quadtree: bool = False,
-    max_mse: float = 0.0025,
-    use_buckets: bool = False,
-    bucket_count: int = 8,
-    use_s_sets: bool = False,
-    topk: int = 64,
-    backend: str = "dot",
-    lsh_budget: int = 2048,
-    entropy_thresh: float = 0.0,
-    quantized: bool = False,
-    s_clip: float = 0.99,
-    o_min: float = -0.5,
-    o_max: float = 1.5,
-    pca_dim: int = 16,
-    lsh_planes: int = 16,
-    seed: int = 0,
-    max_domains: int | None = None,
-    block: int | None = None,
-) -> None:
+def encode_to_file(input_path: Path, output_path: Path, **kwargs: object) -> None:
+    """
+    File pipeline:
+      - load_image(Path) -> float32 image in [0,1]
+      - save_code(Path, FractalCode)
+    """
     img = load_image(input_path)
-    code = encode_array(
-        img=img,
-        min_block=min_block,
-        max_block=max_block,
-        stride=stride,
-        use_quadtree=use_quadtree,
-        max_mse=max_mse,
-        use_buckets=use_buckets,
-        bucket_count=bucket_count,
-        use_s_sets=use_s_sets,
-        topk=topk,
-        backend=backend,
-        lsh_budget=lsh_budget,
-        entropy_thresh=entropy_thresh,
-        quantized=quantized,
-        s_clip=s_clip,
-        o_min=o_min,
-        o_max=o_max,
-        pca_dim=pca_dim,
-        lsh_planes=lsh_planes,
-        seed=seed,
-        max_domains=max_domains,
-    )
+    code = encode_array(img, **kwargs)
     save_code(output_path, code)
 
 
-def encode(
-    input_path: Path,
-    output_path: Path,
-    min_block: int = 4,
-    max_block: int = 16,
-    stride: int = 4,
-    use_quadtree: bool = False,
-    max_mse: float = 0.0025,
-    use_buckets: bool = False,
-    bucket_count: int = 8,
-    use_s_sets: bool = False,
-    topk: int = 64,
-    backend: str = "dot",
-    lsh_budget: int = 2048,
-    entropy_thresh: float = 0.0,
-    quantized: bool = False,
-    s_clip: float = 0.99,
-    o_min: float = -0.5,
-    o_max: float = 1.5,
-    pca_dim: int = 16,
-    lsh_planes: int = 16,
-    seed: int = 0,
-    max_domains: int | None = None,
-) -> None:
-    encode_to_file(
-        input_path=input_path,
-        output_path=output_path,
-        min_block=min_block,
-        max_block=max_block,
-        stride=stride,
-        use_quadtree=use_quadtree,
-        max_mse=max_mse,
-        use_buckets=use_buckets,
-        bucket_count=bucket_count,
-        use_s_sets=use_s_sets,
-        topk=topk,
-        backend=backend,
-        lsh_budget=lsh_budget,
-        entropy_thresh=entropy_thresh,
-        quantized=quantized,
-        s_clip=s_clip,
-        o_min=o_min,
-        o_max=o_max,
-        pca_dim=pca_dim,
-        lsh_planes=lsh_planes,
-        seed=seed,
-        max_domains=max_domains,
-    )
+def encode(input_path: Path, output_path: Path, **kwargs: object) -> None:
+    encode_to_file(input_path, output_path, **kwargs)

@@ -34,5 +34,9 @@ class FractalCode:
 
     iterations_hint: int
 
+    @property
+    def code(self):
+        return self.leaf_codes_f if self.leaf_codes_f is not None else self.leaf_codes_q
+
 
 MAGIC_V2: Final[bytes] = b"FFC2"

@@ -6,6 +6,8 @@ from typing import Final
 import numpy as np
 from numpy.typing import NDArray
 
+from fastfractal._cext_backend import cext
+
 
 def normalize_rows(x: NDArray[np.float32]) -> NDArray[np.float32]:
     mean = x.mean(axis=1, keepdims=True)
@@ -17,20 +19,48 @@ def normalize_rows(x: NDArray[np.float32]) -> NDArray[np.float32]:
     return z / nrm
 
 
-def topk_from_subset(
-    mat: NDArray[np.float32],
-    q: NDArray[np.float32],
-    subset: NDArray[np.int64],
-    k: int,
-) -> NDArray[np.int64]:
-    if subset.size == 0:
-        return subset
-    scores = mat[subset] @ q
-    if k >= scores.shape[0]:
-        return subset[np.argsort(scores)[::-1]]
+def topk_dot(d: np.ndarray, q: np.ndarray, k: int) -> np.ndarray:
+    """
+    Return indices of top-k rows in d by dot(d[i], q).
+    d: (N, D) float32
+    q: (D,) float32
+    """
+    if cext.has("topk_dot"):
+        return np.asarray(cext.call("topk_dot", d, q, int(k)), dtype=np.int64)
+
+    scores = d @ q
+    if k <= 0:
+        return np.empty((0,), dtype=np.int64)
+    if k >= scores.size:
+        return np.argsort(scores)[::-1].astype(np.int64, copy=False)
+
     idx = np.argpartition(scores, -k)[-k:]
-    idx2 = idx[np.argsort(scores[idx])[::-1]]
-    return subset[idx2]
+    idx = idx[np.argsort(scores[idx])[::-1]]
+    return idx.astype(np.int64, copy=False)
+
+
+def topk_from_subset(
+    d: np.ndarray, q: np.ndarray, subset: np.ndarray, k: int
+) -> np.ndarray:
+    """
+    Like topk_dot, but only over rows d[subset].
+    subset: int32/int64 vector of indices into d
+    """
+    if cext.has("topk_from_subset"):
+        return np.asarray(
+            cext.call("topk_from_subset", d, q, subset, int(k)), dtype=np.int64
+        )
+
+    subset = np.asarray(subset, dtype=np.int64)
+    scores = d[subset] @ q
+    if k <= 0:
+        return np.empty((0,), dtype=np.int64)
+    if k >= scores.size:
+        return subset[np.argsort(scores)[::-1]].astype(np.int64, copy=False)
+
+    local = np.argpartition(scores, -k)[-k:]
+    local = local[np.argsort(scores[local])[::-1]]
+    return subset[local].astype(np.int64, copy=False)
 
 
 def _sig_bits(vals: NDArray[np.float32]) -> int:
