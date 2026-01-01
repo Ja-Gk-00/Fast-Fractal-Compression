@@ -58,11 +58,13 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Create venv
+        run: uv venv
+
       - name: Install project with deps
         run: |
           uv pip install -e .
           uv pip install --group dev
-
 
       - name: Tests + coverage
         run: uv run pytest -c pytest_tests.ini --cov=fastfractal --cov-report=xml:coverage.xml
