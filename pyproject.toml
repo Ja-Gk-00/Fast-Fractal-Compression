@@ -46,6 +46,8 @@ disallow_any_generics = true
 no_implicit_optional = true
 show_error_codes = true
 pretty = true
+warn_redundant_casts = true
+warn_unused_ignores = true
 
 [build-system]
 requires = ["setuptools>=68", "wheel", "numpy>=2.4"]
