@@ -79,6 +79,21 @@ PRESETS: tuple[Preset, ...] = (
         },
         decode_iterations=8,
     ),
+    Preset(
+        name="transforms_id_test",
+        params={
+            "max_block": 16,
+            "min_block": 8,
+            "stride": 4,
+            "topk": 8,
+            "entropy_thresh": 0.0,
+            "max_domains": 64,
+            "use_quadtree": False,
+            "quantized": True,
+            "transform_ids": "all"
+        },
+        decode_iterations=8,
+    ),
 )
 
 

@@ -1,0 +1,69 @@
+# Benchmark configuration: focused sweep over transform_ids (with a small sweep over a few core parameters)
+#
+# Expected behavior:
+# - The runner should compute the Cartesian product over values in `space.params`.
+# - For `transform_ids`, each list entry is a *single option* (pass it verbatim to encode_array(..., transform_ids=...)).
+#
+# Recommended output directory layout (runner-dependent):
+#   outputs/<benchmark.name>/<timestamp or git sha>/results.csv
+#
+# Notes:
+# - Keep `transform_ids` reasonably small to avoid excessive runtime (transform variants can multiply the search space).
+# - The "shear" transforms (12–14) are experimental; keep them for exploration and compare against the D4 baseline.
+
+benchmark:
+  name: "transform_sweep"
+  dataset: "./bench/images"
+  outputs: "./bench/results"
+  warmup: 1
+  runs: 3
+  decode_iterations: 8
+  metrics:
+    - "psnr"
+    - "mse"
+    - "encode_ms"
+    - "decode_ms"
+    - "bpp"
+
+space:
+  params:
+    # ------------------------------
+    # Core codec parameters (small sweep)
+    # ------------------------------
+    max_block: [16]
+    min_block: [4, 8]
+    stride: [2]
+    topk: [8, 16]
+    max_domains: [128]
+    use_quadtree: [false, true]
+    quantized: [true]
+    entropy_thresh: [0.0]
+
+    # ------------------------------
+    # Transform family sweep (primary focus)
+    # Each entry below is one candidate transform set.
+    # ------------------------------
+    transform_ids:
+      # Baseline: canonical D4 isometries (0..7)
+      - [0, 1, 2, 3, 4, 5, 6, 7]
+
+      # Rotations only
+      - [0, 1, 2, 3]
+
+      # Identity + horizontal flip (very small set, fast sanity check)
+      - [0, 4]
+
+      # A moderate D4 subset (useful compromise on speed)
+      - [0, 1, 2, 3, 4]
+
+      # D4 + transpose
+      - [0, 1, 2, 3, 4, 5, 6, 7, 8]
+
+      # D4 + transpose-based isometries (0..11)
+      - [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
+      # D4 + shear (exclude shear=0 id=13 since it duplicates identity)
+      - [0, 1, 2, 3, 4, 5, 6, 7, 12, 14]
+
+      # Full expanded set (0..14, including shear=0 as a control)
+      - [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]

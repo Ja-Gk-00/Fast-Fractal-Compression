@@ -3,20 +3,11 @@ name = "fastfractal"
 version = "0.1.0"
 description = "Fast fractal image compression packages"
 readme = "README.md"
-requires-python = ">=3.10"
-dependencies = ["numpy>=1.23", "Pillow>=10.0", "PyYAML>=6.0"]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.6",
-    "mypy>=1.10",
-    "pytest>=8.0",
-    "pytest-cov>=5.0",
-    "types-PyYAML>=6.0.12.20240808",
-]
+requires-python = ">=3.11"
+dependencies = ["numpy>=2.4", "Pillow>=12.0", "PyYAML>=6.0"]
 
 [dependency-groups]
-bench = ["pytest-benchmark>=4.0"]
+bench = ["pytest-benchmark>=5.2"]
 
 notebooks = [
     "ipykernel>=6.29",
@@ -25,13 +16,21 @@ notebooks = [
     "nbformat>=5.10",
 ]
 
+dev = [
+    "ruff>=0.14",
+    "mypy>=1.10",
+    "pytest>=9.0",
+    "pytest-cov>=5.0",
+    "types-PyYAML>=6.0.12.20240808",
+]
+
 [tool.black]
 line-length = 88
-target-version = ["py310"]
+target-version = ["py311"]
 
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py311"
 lint.select = ["E", "F", "I", "B", "UP"]
 lint.ignore = ["E501"]
 exclude = [".venv", "notebooks", ".github"]
@@ -40,7 +39,7 @@ exclude = [".venv", "notebooks", ".github"]
 combine-as-imports = true
 
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.11"
 strict = true
 warn_unused_configs = true
 disallow_any_generics = true
@@ -49,8 +48,5 @@ show_error_codes = true
 pretty = true
 
 [build-system]
-requires = ["setuptools>=68", "wheel", "numpy>=1.26"]
+requires = ["setuptools>=68", "wheel", "numpy>=2.4"]
 build-backend = "setuptools.build_meta"
-
-[tool.setuptools]
-packages = ["fastfractal"]

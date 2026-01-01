@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 from numpy.typing import NDArray
+from typing import Sequence
 
 from fastfractal import _cext  # type: ignore
 from fastfractal.core.blocks import extract_range, iter_domains
@@ -20,6 +21,35 @@ from fastfractal.core.types import FractalCode
 from fastfractal.io.codebook import save_code
 from fastfractal.io.imageio import load_image
 from fastfractal.utils.entropy import entropy01
+
+_CANONICAL_TRANSFORMS: tuple[int, ...] = (0, 1, 2, 3, 4, 5, 6, 7)
+
+
+def _normalize_transform_ids(
+    transform_ids: tuple[int, ...] | None | str,
+) -> tuple[int, ...]:
+    if transform_ids is None:
+        return _CANONICAL_TRANSFORMS
+
+    if transform_ids == "all":
+        return tuple([i for i in range(0, 15)])
+
+    ids: list[int] = []
+    seen: set[int] = set()
+
+    for t in transform_ids:
+        ti = int(t)
+        if ti < 0 or ti > 14:
+            raise ValueError(
+                f"transform_ids: invalid transform id {ti}; expected 0..14"
+            )
+        if ti not in seen:
+            ids.append(ti)
+            seen.add(ti)
+
+    if not ids:
+        raise ValueError("transform_ids: must contain at least one transform id")
+    return tuple(ids)
 
 
 def _has_cext() -> bool:
@@ -179,6 +209,7 @@ class PoolRuntime:
     lsh: LSHIndex | None
     pca_mean: NDArray[np.float32] | None
     pca_basis: NDArray[np.float32] | None
+    transform_ids: tuple[int, ...] | None
 
 
 def build_pool(
@@ -193,6 +224,7 @@ def build_pool(
     lsh_planes: int,
     seed: int,
     max_domains: int | None,
+    transform_ids: tuple[int, ...] | None,
 ) -> PoolRuntime:
     h = int(img.shape[0])
     w = int(img.shape[1])
@@ -248,28 +280,33 @@ def build_pool(
 
     yx = np.asarray(dom_xy, dtype=np.uint16)
     n_pix = block * block
-    tf_flat = np.empty((dcount * 8, c, n_pix), dtype=np.float32)
-    proxy_raw = np.empty((dcount * 8, n_pix), dtype=np.float32)
-    map_dom = np.empty((dcount * 8,), dtype=np.uint32)
-    map_tf = np.empty((dcount * 8,), dtype=np.uint8)
+    tids = _normalize_transform_ids(transform_ids)
+    n_tf = len(tids)
 
-    entry_bucket = np.zeros((dcount * 8,), dtype=np.uint8)
+    tf_flat = np.empty((dcount * n_tf, c, n_pix), dtype=np.float32)
+    proxy_raw = np.empty((dcount * n_tf, n_pix), dtype=np.float32)
+    map_dom = np.empty((dcount * n_tf,), dtype=np.uint32)
+    map_tf = np.empty((dcount * n_tf,), dtype=np.uint8)
+
+    entry_bucket = np.zeros((dcount * n_tf,), dtype=np.uint8)
     if use_buckets:
         for di in range(dcount):
             bid = bucket_id(dom_ent[di], dom_var[di], bucket_count)
-            for t in range(8):
-                entry_bucket[di * 8 + t] = np.uint8(bid)
+            for ti in range(n_tf):
+                entry_bucket[di * n_tf + ti] = np.uint8(bid)
 
     for di in range(dcount):
         domc = dom_ch[di]
         dproxy = dom_proxy[di]
-        for t in range(8):
-            k = di * 8 + t
+        for ti, t in enumerate(tids):
+            k = di * n_tf + ti
             map_dom[k] = np.uint32(di)
             map_tf[k] = np.uint8(t)
+
             proxy_raw[k, :] = (
                 apply_transform_2d(dproxy, t).reshape(-1).astype(np.float32, copy=False)
             )
+
             for ch in range(c):
                 tf_flat[k, ch, :] = (
                     apply_transform_2d(domc[ch], t)
@@ -321,6 +358,7 @@ def build_pool(
         lsh=lsh,
         pca_mean=pca_mean,
         pca_basis=pca_basis,
+        transform_ids=tids,
     )
 
 
@@ -458,45 +496,97 @@ def encode_leaf(
     else:
         rblk = img[y : y + b, x : x + b, :].astype(np.float32, copy=False)
         rflat = np.transpose(rblk, (2, 0, 1)).reshape(c, -1)
-        for ci in cand:
-            mse_sum = 0.0
-            if quantized:
-                qtmp = np.zeros((c, 2), dtype=np.uint8)
-            else:
-                ftmp = np.zeros((c, 2), dtype=np.float32)
-            for ch in range(c):
-                domv = pool.tf_flat[int(ci), ch, :]
-                s0, o0, _ = linreg_error(domv, rflat[ch])
-                s1 = post_s(s0)
-                o1 = float(np.clip(o0, o_min, o_max))
-                if quantized:
-                    qs = quant_s(s1, s_clip)
-                    qo = quant_o(o1, o_min, o_max)
-                    s2 = dequant_s(qs, s_clip)
-                    o2 = dequant_o(qo, o_min, o_max)
-                    diff = (np.float32(s2) * domv + np.float32(o2) - rflat[ch]).astype(
-                        np.float32, copy=False
-                    )
-                    mse_sum += float(np.dot(diff, diff) / float(n_pix))
-                    qtmp[ch, 0] = np.uint8(qs)
-                    qtmp[ch, 1] = np.uint8(qo)
-                else:
-                    diff = (np.float32(s1) * domv + np.float32(o1) - rflat[ch]).astype(
-                        np.float32, copy=False
-                    )
-                    mse_sum += float(np.dot(diff, diff) / float(n_pix))
-                    ftmp[ch, 0] = np.float32(s1)
-                    ftmp[ch, 1] = np.float32(o1)
 
-            mse = mse_sum / float(c)
-            if mse < best_mse:
-                best_mse = mse
-                best_dom = int(pool.map_dom[int(ci)])
-                best_tf = int(pool.map_tf[int(ci)])
-                if quantized:
-                    best_q = qtmp
-                else:
-                    best_f = ftmp
+        n = float(n_pix)
+        sumR = rflat.sum(axis=1, dtype=np.float64)
+        sumRR = np.einsum("ij,ij->i", rflat, rflat, dtype=np.float64)
+
+        for ci in cand:
+            dom_all = pool.tf_flat[int(ci), :, :]  # (c, n_pix)
+
+            sumD = dom_all.sum(axis=1, dtype=np.float64)
+            sumDD = np.einsum("ij,ij->i", dom_all, dom_all, dtype=np.float64)
+            sumRD = np.einsum("ij,ij->i", dom_all, rflat, dtype=np.float64)
+
+            denom = n * sumDD - sumD * sumD
+            mask = np.abs(denom) < 1e-18
+
+            s0 = np.zeros_like(denom, dtype=np.float64)
+            np.divide(
+                n * sumRD - sumD * sumR,
+                denom,
+                out=s0,
+                where=~mask,
+            )
+            o0 = np.zeros_like(sumR, dtype=np.float64)
+            np.divide(
+                sumR,
+                n,
+                out=o0,
+                where=(mask & (n != 0)),
+            )
+            np.divide(
+                sumR - s0 * sumD,
+                n,
+                out=o0,
+                where=(~mask & (n != 0)),
+            )
+
+            if use_s_sets and use_buckets:
+                s1 = np.asarray([post_s(float(v)) for v in s0], dtype=np.float64)
+            else:
+                s1 = np.clip(s0, -s_clip, s_clip)
+
+            o1 = np.clip(o0, o_min, o_max)
+
+            if quantized:
+                qs = np.asarray([quant_s(float(v), s_clip) for v in s1], dtype=np.uint8)
+                qo = np.asarray(
+                    [quant_o(float(v), o_min, o_max) for v in o1], dtype=np.uint8
+                )
+
+                s2 = qs.astype(np.float64) * (2.0 * float(s_clip)) / 255.0 - float(
+                    s_clip
+                )
+                o2 = (
+                    float(o_min)
+                    + qo.astype(np.float64) * (float(o_max) - float(o_min)) / 255.0
+                )
+
+                sse = (
+                    sumRR
+                    + s2 * s2 * sumDD
+                    + n * o2 * o2
+                    - 2.0 * s2 * sumRD
+                    - 2.0 * o2 * sumR
+                    + 2.0 * s2 * o2 * sumD
+                )
+                mse = float((sse / n).mean())
+
+                if mse < best_mse:
+                    best_mse = mse
+                    best_dom = int(pool.map_dom[int(ci)])
+                    best_tf = int(pool.map_tf[int(ci)])
+                    best_q[:, 0] = qs
+                    best_q[:, 1] = qo
+
+            else:
+                sse = (
+                    sumRR
+                    + s1 * s1 * sumDD
+                    + n * o1 * o1
+                    - 2.0 * s1 * sumRD
+                    - 2.0 * o1 * sumR
+                    + 2.0 * s1 * o1 * sumD
+                )
+                mse = float((sse / n).mean())
+
+                if mse < best_mse:
+                    best_mse = mse
+                    best_dom = int(pool.map_dom[int(ci)])
+                    best_tf = int(pool.map_tf[int(ci)])
+                    best_f[:, 0] = s1.astype(np.float32, copy=False)
+                    best_f[:, 1] = o1.astype(np.float32, copy=False)
 
     if quantized:
         return best_dom, best_tf, best_q, best_mse
@@ -515,6 +605,7 @@ def encode_array(
     use_s_sets: bool = False,
     topk: int = 64,
     backend: str = "dot",
+    transform_ids: Sequence[int] | None = None,
     lsh_budget: int = 2048,
     entropy_thresh: float = 0.0,
     quantized: bool = False,
@@ -597,6 +688,7 @@ def encode_array(
                 lsh_planes=lsh_planes,
                 seed=seed + b,
                 max_domains=max_domains,
+                transform_ids=transform_ids,
             )
         )
 
@@ -746,6 +838,7 @@ def encode_to_file(
     seed: int = 0,
     max_domains: int | None = None,
     block: int | None = None,
+    transform_ids: Sequence[int] | None = None,
 ) -> None:
     img = load_image(input_path)
     code = encode_array(
@@ -770,6 +863,8 @@ def encode_to_file(
         lsh_planes=lsh_planes,
         seed=seed,
         max_domains=max_domains,
+        transform_ids=transform_ids,
+        block=block,
     )
     save_code(output_path, code)
 
@@ -797,6 +892,8 @@ def encode(
     lsh_planes: int = 16,
     seed: int = 0,
     max_domains: int | None = None,
+    transform_ids: Sequence[int] | None = None,
+    block: int | None = None,
 ) -> None:
     encode_to_file(
         input_path=input_path,
@@ -821,4 +918,6 @@ def encode(
         lsh_planes=lsh_planes,
         seed=seed,
         max_domains=max_domains,
+        transform_ids=transform_ids,
+        block=block,
     )
