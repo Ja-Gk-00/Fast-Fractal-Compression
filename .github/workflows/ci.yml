@@ -56,7 +56,7 @@ jobs:
       - name: Install uv + set Python
         uses: astral-sh/setup-uv@v7
         with:
-          python-version: "3.12"
+          python-version: "3.11"
           enable-cache: true
 
       - name: Install project with deps
