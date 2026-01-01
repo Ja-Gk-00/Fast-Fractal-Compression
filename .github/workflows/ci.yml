@@ -32,9 +32,10 @@ jobs:
       - name: Create venv
         run: uv venv
 
-      - name: Install deps
-        run: uv pip install -e .
-             uv pip install --group dev  
+      - name: Install project with deps
+        run: |
+          uv pip install -e .
+          uv pip install --group dev
 
       - name: Lint
         run: uv run ruff check .
@@ -58,9 +59,10 @@ jobs:
           python-version: "3.12"
           enable-cache: true
 
-      - name: Install project
-        run: uv pip install -e .
-             uv pip install --group dev
+      - name: Install project with deps
+        run: |
+          uv pip install -e .
+          uv pip install --group dev
 
 
       - name: Tests + coverage
