@@ -33,7 +33,7 @@ line-length = 88
 target-version = "py311"
 lint.select = ["E", "F", "I", "B", "UP"]
 lint.ignore = ["E501"]
-exclude = [".venv", "notebooks", ".github"]
+exclude = [".venv", "notebooks", ".github", "setup.py"]
 
 [tool.ruff.lint.isort]
 combine-as-imports = true

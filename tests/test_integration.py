@@ -90,7 +90,7 @@ PRESETS: tuple[Preset, ...] = (
             "max_domains": 64,
             "use_quadtree": False,
             "quantized": True,
-            "transform_ids": "all"
+            "transform_ids": "all",
         },
         decode_iterations=8,
     ),
