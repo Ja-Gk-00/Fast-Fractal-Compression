@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from typing import Literal
+
 import numpy as np
 from numpy.typing import NDArray
-
 
 # Transform set helper:
 #  0–7   : canonical D4 isometries

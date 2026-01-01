@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
 from numpy.typing import NDArray
-from typing import Sequence
 
 from fastfractal import _cext  # type: ignore
 from fastfractal.core.blocks import extract_range, iter_domains
