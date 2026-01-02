@@ -57,22 +57,13 @@ def _require_encode_array():
 
 
 def _available_backends(encode_mod: object) -> set[str]:
-    """
-    Try to derive allowed backend strings from encode_mod.SearchBackend.
-
-    Supports:
-    - set/list/tuple of strings
-    - Enum-like class with __members__ and .value
-    """
     sb = getattr(encode_mod, "SearchBackend", None)
     if sb is None:
         return set()
 
-    # common: SearchBackend = {"dot", "lsh", ...}
     if isinstance(sb, (set, frozenset, list, tuple)):
         return {str(x).lower() for x in sb}
 
-    # Enum: iterate members; accept both member.name and member.value
     if hasattr(sb, "__members__"):
         out: set[str] = set()
         try:
@@ -81,11 +72,9 @@ def _available_backends(encode_mod: object) -> set[str]:
                 out.add(str(getattr(m, "name", m)).lower())
         except TypeError:
             pass
-        # also add raw __members__ keys
         out.update({str(k).lower() for k in getattr(sb, "__members__", {}).keys()})
         return {x for x in out if x}
 
-    # fallback: try iterating
     try:
         return {str(x).lower() for x in sb}  # type: ignore[operator]
     except TypeError:
@@ -134,12 +123,8 @@ def _assert_reconstruction(src: NDArray[np.float32], rec: NDArray[np.float32]) -
     s = np.clip(src, 0.0, 1.0)
     mse = float(np.mean((r - s) ** 2))
     assert np.isfinite(mse)
-
-    # Keep this lenient for "advanced" modes that may trade quality for speed.
     assert mse < 0.55
 
-
-# --------- PRESETS (advanced) ----------
 
 _encode_array, _encode_mod = _require_encode_array()
 _SIG = inspect.signature(_encode_array)
@@ -151,7 +136,6 @@ def _mk_preset(
     name: str, extra: dict[str, object], decode_iterations: int = 10
 ) -> Preset:
     base = {
-        # keep it relatively fast
         "max_block": 16,
         "min_block": 8,
         "stride": 4,
@@ -160,11 +144,9 @@ def _mk_preset(
         "max_domains": 256,
         "use_quadtree": False,
         "quantized": True,
-        # default-friendly knobs
         "iterations_hint": 8,
     }
     base.update(extra)
-    # Only keep params that exist in signature.
     return Preset(
         name=name,
         params=_filter_kwargs(_encode_array, base),
@@ -174,22 +156,18 @@ def _mk_preset(
 
 PRESETS_LIST: list[Preset] = []
 
-# PCA dimension (this is NOT a backend in your build; it's a knob)
 if "pca_dim" in _PARAM_NAMES:
     PRESETS_LIST.append(_mk_preset("adv_pca_dim16", {"pca_dim": 16}))
 
-# Buckets
 if "use_buckets" in _PARAM_NAMES:
     extra = {"use_buckets": True}
     if "bucket_count" in _PARAM_NAMES:
         extra["bucket_count"] = 8
     PRESETS_LIST.append(_mk_preset("adv_buckets", extra))
 
-# S-sets
 if "use_s_sets" in _PARAM_NAMES:
     PRESETS_LIST.append(_mk_preset("adv_s_sets", {"use_s_sets": True}))
 
-# LSH backend, only if supported
 if "backend" in _PARAM_NAMES and "lsh" in _ALLOWED_BACKENDS:
     extra = {"backend": "lsh"}
     if "lsh_planes" in _PARAM_NAMES:
@@ -205,9 +183,6 @@ if not PRESETS:
         "no advanced presets applicable for current encode_array build",
         allow_module_level=True,
     )
-
-
-# --------- TESTS ----------
 
 
 @pytest.mark.parametrize("img_path", IMAGE_PATHS, ids=lambda p: Path(p).name)
