@@ -1,17 +1,5 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
-
-/*
-   IMPORTANT (multi-translation-unit NumPy C-API setup)
-   ---------------------------------------------------
-   This extension is built from multiple .c files (e.g. _cext.c and cext_encode_leaf.c).
-   NumPy's C-API uses a global function-table pointer.
-
-   - Exactly ONE translation unit must *define* the table pointer and call import_array().
-   - All other translation units must declare the same pointer as extern.
-
-   We do that via PY_ARRAY_UNIQUE_SYMBOL + (NO_IMPORT_ARRAY in other TUs).
-*/
 #define PY_ARRAY_UNIQUE_SYMBOL FASTFRACTAL_ARRAY_API
 #include <numpy/arrayobject.h>
 
@@ -342,7 +330,6 @@ static struct PyModuleDef moduledef = {
 };
 
 PyMODINIT_FUNC PyInit__cext(void) {
-    /* sets FASTFRACTAL_ARRAY_API (shared across TUs) */
     import_array();
     if (PyErr_Occurred()) return NULL;
     return PyModule_Create(&moduledef);
