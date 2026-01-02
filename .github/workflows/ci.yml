@@ -42,7 +42,10 @@ jobs:
 
       - name: Format check
         run: uv run ruff format --check .
-
+      
+      - name: Mypy run
+        run: uv run mypy fastfractal/
+      
       - name: Tests
         run: uv run pytest -c pytest_tests.ini
   

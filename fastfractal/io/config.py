@@ -4,13 +4,10 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any, cast
 
+import yaml
+
 
 def load_yaml(path: Path) -> dict[str, Any]:
-    try:
-        import yaml  # type: ignore
-    except Exception as e:
-        raise ValueError("PyYAML is required to load .yml/.yaml config files") from e
-
     obj = yaml.safe_load(path.read_text(encoding="utf-8"))
     if obj is None:
         return {}

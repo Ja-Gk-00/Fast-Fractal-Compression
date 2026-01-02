@@ -7,19 +7,19 @@ from PIL import Image
 def process_image(
     in_path: Path,
     out_path: Path,
-    size=None,
-    grayscale=False,
-    to_format=None,
-    jpg_quality=95,
-):
+    size: tuple[int, int] | None = None,
+    grayscale: bool = False,
+    to_format: str | None = None,
+    jpg_quality: int = 95,
+) -> None:
     img = Image.open(in_path)
     if grayscale:
-        img = img.convert("L")
+        img = img.convert("L")  # type: ignore[assignment]
     else:
-        img = img.convert("RGB")
+        img = img.convert("RGB")  # type: ignore[assignment]
 
     if size is not None:
-        img = img.resize(size, Image.BICUBIC)
+        img = img.resize(size)  # type: ignore[assignment]
 
     if to_format is not None:
         fmt = to_format.upper()
@@ -38,7 +38,7 @@ def process_image(
     img.save(out_path, fmt, **save_kwargs)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=Path, help="Input image or directory")
     parser.add_argument("output", type=Path, help="Output directory")

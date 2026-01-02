@@ -5,6 +5,9 @@ from typing import Literal
 
 import numpy as np
 from numpy.typing import NDArray
+from PIL import Image  # type: ignore[import-not-found, unused-ignore]
+
+from fastfractal.core.types import FractalCode
 
 
 def _to_gray_u8(x: NDArray[np.uint8]) -> NDArray[np.uint8]:
@@ -18,16 +21,9 @@ def _to_gray_u8(x: NDArray[np.uint8]) -> NDArray[np.uint8]:
             + 0.587 * x[:, :, 1].astype(np.float32)
             + 0.114 * x[:, :, 2].astype(np.float32)
         )
-        return np.clip(y, 0.0, 255.0).astype(np.uint8)
+        y_u8 = np.asarray(np.clip(y, 0.0, 255.0), dtype=np.uint8)
+        return y_u8
     raise ValueError("unsupported image shape for grayscale conversion")
-
-
-def _require_pillow() -> object:
-    try:
-        from PIL import Image  # type: ignore
-    except Exception as e:
-        raise RuntimeError("Pillow is required for visualization: uv add pillow") from e
-    return Image
 
 
 def _clamp_u8(x: NDArray[np.float32]) -> NDArray[np.uint8]:
@@ -75,13 +71,13 @@ def _edge_mask(
 
     hmask = np.cumsum(hdiff[:h, :w], axis=1) != 0
     vmask = np.cumsum(vdiff[:h, :w], axis=0) != 0
-    mask = hmask | vmask
+    mask = np.asarray(hmask | vmask, dtype=np.bool_)
 
     t = int(thickness)
     if t <= 1:
         return mask
 
-    out = mask.copy()
+    out = np.asarray(mask.copy(), dtype=np.bool_)
     for k in range(1, t):
         out[k:, :] |= mask[:-k, :]
         out[:-k, :] |= mask[k:, :]
@@ -92,7 +88,7 @@ def _edge_mask(
 
 
 def visualize_blocks(
-    code: object,
+    code: FractalCode,
     out_path: str | Path | None = None,
     *,
     background: Literal["decode", "black"] = "decode",
@@ -105,21 +101,20 @@ def visualize_blocks(
 ) -> Path:
     from fastfractal.core.decode import decode_array
 
-    code2 = code
-    h = int(code2.height)
-    w = int(code2.width)
-    oh = int(code2.orig_height)
-    ow = int(code2.orig_width)
+    h = int(code.height)
+    w = int(code.width)
+    oh = int(code.orig_height)
+    ow = int(code.orig_width)
 
-    leaf_yx = code2.leaf_yx
-    leaf_pool = code2.leaf_pool
-    pool_blocks = code2.pool_blocks
+    leaf_yx = code.leaf_yx
+    leaf_pool = code.leaf_pool
+    pool_blocks = code.pool_blocks
 
     mask = _edge_mask(h, w, leaf_yx, leaf_pool, pool_blocks, int(thickness))
 
     u8: NDArray[np.uint8]
     if background == "decode":
-        imgf = decode_array(code2, iterations=int(iterations))
+        imgf = decode_array(code, iterations=int(iterations))
         u8 = _clamp_u8(imgf.astype(np.float32, copy=False))
         if grayscale:
             u8 = _to_gray_u8(u8)
@@ -164,7 +159,6 @@ def visualize_blocks(
             u8 = np.clip(base3, 0.0, 255.0).astype(np.uint8, copy=False)
 
     p = Path(out_path) if out_path is not None else Path("blocks.png")
-    Image = _require_pillow()
 
     if u8.ndim == 2:
         im = Image.fromarray(u8, mode="L")
@@ -173,12 +167,7 @@ def visualize_blocks(
 
     s = int(upscale)
     if s > 1:
-        resample = (
-            Image.Resampling.NEAREST
-            if hasattr(Image, "Resampling")
-            else Image.NEAREST  # ignore [attr-defined]
-        )
-        im = im.resize((w * s, h * s), resample=resample)
+        im = im.resize((w * s, h * s), resample=Image.Resampling.NEAREST)
 
     p.parent.mkdir(parents=True, exist_ok=True)
     im.save(p)
@@ -197,18 +186,19 @@ def visualize_blocks_from_file(
     alpha: float = 1.0,
     upscale: int = 1,
 ) -> Path:
-    cp = Path(code_path)
+    code_path = Path(code_path)
+
+    from fastfractal.io.codebook import load_code as _load_code
 
     try:
-        from fastfractal.io.codebook import load_code as _load_code_path
+        code = _load_code(code_path)
+    except Exception as e1:
+        try:
+            code = _load_code(code_path.read_bytes())  # type: ignore[arg-type]
+        except Exception as err:
+            raise e1 from err
 
-        code = _load_code_path(cp)
-    except Exception:
-        from fastfractal.io.codebook import load_code as _load_code_bytes
-
-        code = _load_code_bytes(cp.read_bytes())
-
-    out = cp.with_suffix(".blocks.png") if out_path is None else Path(out_path)
+    out = code_path.with_suffix(".blocks.png") if out_path is None else Path(out_path)
 
     return visualize_blocks(
         code,

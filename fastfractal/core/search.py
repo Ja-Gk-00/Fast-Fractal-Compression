@@ -14,7 +14,7 @@ def normalize_rows(x: NDArray[np.float32]) -> NDArray[np.float32]:
     std = np.sqrt(var + np.float32(1e-12))
     z = xc / std
     nrm = np.sqrt((z * z).sum(axis=1, keepdims=True) + np.float32(1e-12))
-    return z / nrm
+    return np.asarray(z / nrm, np.float32)
 
 
 def topk_from_subset(
