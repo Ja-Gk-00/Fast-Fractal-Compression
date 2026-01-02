@@ -12,7 +12,7 @@ def load_image(
     path: Path,
     *,
     mode: Literal["L", "RGB"] | None = None,
-    max_side: int | None,
+    max_side: int | None = 2048,
 ) -> NDArray[np.float32]:
     with Image.open(path) as im:
         if mode is None:
