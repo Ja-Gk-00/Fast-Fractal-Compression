@@ -1,5 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/Ja-Gk-00/Fast-Fractal-Compression/badge.svg)](https://coveralls.io/github/Ja-Gk-00/Fast-Fractal-Compression) [![CI](https://github.com/Ja-Gk-00/Fast-Fractal-Compression/.github/workflows/ci.yml/badge.svg)](https://github.com/Ja-Gk-00/Fast-Fractal-Compression/.github/workflows/ci.yml)
-
+[![Coverage Status](https://coveralls.io/repos/github/Ja-Gk-00/Fast-Fractal-Compression/badge.svg)](https://coveralls.io/github/Ja-Gk-00/Fast-Fractal-Compression) [![CI](https://github.com/Ja-Gk-00/Fast-Fractal-Compression/actions/workflows/ci.yml/badge.svg)](https://github.com/Ja-Gk-00/Fast-Fractal-Compression/actions/workflows/ci.yml)
 
 # Fast Fractal 
 ![Image, intro](resources/images/repo_main.png)
