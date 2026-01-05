@@ -1,12 +1,142 @@
-# FastFractal 
-Package for fast image fractal conversion.  
-**Warning**, the package is in its early stages and some functionalities may not work optimally.
+[![Coverage Status](https://coveralls.io/repos/github/Ja-Gk-00/Fast-Fractal-Compression/badge.svg)](https://coveralls.io/github/Ja-Gk-00/Fast-Fractal-Compression) [![CI](https://github.com/Ja-Gk-00/Fast-Fractal-Compression/.github/workflows/ci.yml/badge.svg)](https://github.com/Ja-Gk-00/Fast-Fractal-Compression/.github/workflows/ci.yml)
 
-## 5. Parameter reference
+
+# Fast Fractal 
+![Image, intro](resources/images/repo_main.png)
+
+This document describes how to use Fast Fractal’s **Python** API to encode and decode images (arrays or files), how the main parameters affect quality/speed/size, and how to set up practical benchmarks and parameter sweeps.
+**Warning**. The package is in its early stages of development and some functionalities may not work optimally.
+
+
+
+## 1. Installation & Imports
+-------------------------
+
+Install through the [uv package manager](https://docs.astral.sh/uv/getting-started/installation/) from the project's root:
+
+```bash
+uv sync
+```
+
+For development, sync with `dev` group:
+
+```bash
+uv sync --group dev
+```
+
+To seamlessly run notebooks, sync with `notebooks` group:
+
+```bash
+uv sync --group notebooks
+```
+
+For running benchmarks, use `bench` group:
+
+```bash
+uv sync --group bench
+```
+
+### 1.1 Data Model Overview
+----------------------
+
+#### Images as arrays
+FastFractal operates on:
+- grayscale: `x.shape == (H, W)`
+- RGB: `x.shape == (H, W, 3)`
+
+The recommended dtype/range is:
+- `x.dtype == np.float32`
+- values in `[0.0, 1.0]`
+
+#### `FractalCode`
+`encode_array(...)` returns a `FractalCode` object (a compact, structured representation of the fractal encoding). It contains image metadata (original size/channels) and the learned mapping data needed for decoding.
+
+You typically do **not** manually modify `FractalCode`; you either:
+- keep it in memory and call `decode_array(code, iterations=...)`, or
+- persist it with `encode_to_file(...)` and restore it with `decode_to_file(...)`.
+
+---
+
+## 2. Quick-start: Encode/Decode Arrays
+-----------------------------------
+
+### 2.1 Load an image into float32
+```python
+from PIL import Image
+import numpy as np
+
+im = Image.open("input.png").convert("RGB")
+x_u8 = np.asarray(im, dtype=np.uint8)
+x = (x_u8.astype(np.float32) / 255.0).astype(np.float32, copy=False)  # [0,1], float32
+```
+
+### 2.2 Encode/Decode
+```python
+code = encode_array(
+    x,
+    max_block=16,
+    min_block=8,
+    stride=4,
+    topk=16,
+    entropy_thresh=0.0,
+    max_domains=256,
+    use_quadtree=False,
+    quantized=True,
+)
+
+rec = decode_array(code, iterations=8)
+rec = np.clip(rec, 0.0, 1.0).astype(np.float32, copy=False)
+```
+
+### 2.3 Save reconstruction
+```python
+rec_u8 = (np.clip(rec, 0.0, 1.0) * 255.0 + 0.5).astype(np.uint8)
+Image.fromarray(rec_u8).save("decoded.png")
+```
+
+Notes:
+- `iterations` controls convergence: more iterations often improves quality, but increases runtime.
+- For grayscale images, use `.convert("L")` and expect `rec.shape == (H, W)`.
+
+---
+
+### 2.3 Notebooks
+
+For more information and "hands on" guide on running the package you can look into jupyter notebooks available under `notebooks` directory, where simple use-cases have been presented.
+
+## 3. Encode/Decode to a file
+-------------------------------------
+
+This is the recommended pipeline to save an image to a file.
+
+```python
+from pathlib import Path
+
+in_img = Path("input.png")
+out_code = Path("out.ffc")
+out_dec = Path("decoded.png")
+
+encode_to_file(
+    in_img,
+    out_code,
+    max_block=16,
+    min_block=8,
+    stride=4,
+    topk=16,
+    entropy_thresh=0.0,
+    max_domains=256,
+    use_quadtree=False,
+    quantized=True,
+)
+
+decode_to_file(out_code, out_dec, iterations=8)
+```
+
+## 4. Parameter reference
 
 This section describes the encoding parameters you are expected to tune. Unless stated otherwise, all parameters apply to `encode_array`, and `encode`/`encode_to_file` pass them through.
 
-### 5.1 Core parameters
+### 4.1 Core parameters
 
 - `pool_blocks: list[int]`  
   Block sizes (in pixels) used for range blocks. Typical: `[8]`, `[16]`, or multi-scale like `[16, 8]`.
@@ -32,7 +162,7 @@ This section describes the encoding parameters you are expected to tune. Unless 
 - `transform_ids: list[int] | None`  
   Subset of transform IDs to consider. `None` defaults to canonical `0..7`.
 
-### 5.2 Advanced parameters
+### 4.2 Advanced parameters
 
 - `backend: str`  
   Implementation backend for similarity/top‑k selection (pure Python variants). Use the library default unless benchmarking.
@@ -60,7 +190,7 @@ This section describes the encoding parameters you are expected to tune. Unless 
 
 ---
 
-## 6. Benchmarks and parameter-space search (config tutorial)
+## 5. Benchmarks and parameter-space search (config tutorial)
 
 The recommended workflow is:
 1. Define a **benchmark dataset** (images, sizes, color modes).
@@ -68,7 +198,7 @@ The recommended workflow is:
 3. Run benchmarks with **warmup** and repeated measurements.
 4. Select best settings using a primary objective (e.g., PSNR at fixed runtime budget).
 
-### 6.1 Benchmark dataset layout
+### 5.1 Benchmark dataset layout
 
 A minimal benchmark directory:
 
@@ -87,7 +217,7 @@ Recommendations:
 - Include both grayscale and RGB if you intend to support both.
 - Keep a fixed input normalization (the library expects float32 in [0,1]).
 
-### 6.2 Config file: defining a parameter grid
+### 5.2 Config file: defining a parameter grid
 
 Use a simple YAML (or JSON) “grid search” format: each key maps to a list of candidate values. The benchmark runner enumerates the cartesian product.
 
@@ -124,7 +254,7 @@ How to interpret `transform_ids` in the grid:
 - The benchmark runner should pass that list directly into `encode_array(..., transform_ids=...)`.
 
 
-### 6.3 Benchmark run settings
+### 5.3 Benchmark run settings
 
 To produce stable results:
 - **Warmup:** run 1–3 encode/decode cycles before timing (CPU caches, JIT effects in NumPy).
@@ -136,4 +266,3 @@ To produce stable results:
 
 A typical reporting row:
 - `image`, `H×W×C`, `params`, `encode_ms`, `decode_ms@iters`, `psnr_db`, `size_bytes`
-
