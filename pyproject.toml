@@ -10,6 +10,7 @@ dependencies = ["numpy>=2.4", "Pillow>=12.0", "PyYAML>=6.0",]
 bench = ["pytest-benchmark>=5.2"]
 
 notebooks = [
+    "pre-commit>=4.5",
     "ipykernel>=6.29",
     "jupyterlab>=4.2",
     "matplotlib>=3.8",
