@@ -11,3 +11,15 @@ def entropy01(block01: NDArray[np.float32]) -> float:
     p = p[p > 0.0]
     h = -np.sum(p * np.log2(p))
     return float(h / 8.0)
+
+
+def var01(x: NDArray[np.float32]) -> float:
+    xf = x.ravel()
+    n = int(xf.size)
+    if n <= 0:
+        return 0.0
+    s1 = float(xf.sum(dtype=np.float64))
+    s2 = float(np.dot(xf, xf))
+    m = s1 / float(n)
+    v = (s2 / float(n)) - (m * m)
+    return 0.0 if v < 0.0 else float(v)

@@ -21,6 +21,8 @@ mypyc_targets = [
     "fastfractal/core/decode.py",
     #"fastfractal/core/encode.py", # uses C wrappers and should not be compiled
     "fastfractal/core/transforms.py",
+    "fastfractal/core/quantization.py",
+    "fastfractal/core/poolbuilder.py",
     #"fastfractal/core/search.py", #TODO revamp so mypyc can compile
     "fastfractal/core/blocks.py",
 ]

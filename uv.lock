@@ -589,6 +589,7 @@ bench = [
 ]
 dev = [
     { name = "mypy" },
+    { name = "pre-commit" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "ruff" },
@@ -599,7 +600,6 @@ notebooks = [
     { name = "jupyterlab" },
     { name = "matplotlib" },
     { name = "nbformat" },
-    { name = "pre-commit" },
 ]
 
 [package.metadata]
@@ -613,17 +613,17 @@ requires-dist = [
 bench = [{ name = "pytest-benchmark", specifier = ">=5.2" }]
 dev = [
     { name = "mypy", specifier = ">=1.19" },
+    { name = "pre-commit", specifier = ">=4.5" },
     { name = "pytest", specifier = ">=9.0" },
     { name = "pytest-cov", specifier = ">=5.0" },
     { name = "ruff", specifier = ">=0.14" },
     { name = "types-pyyaml", specifier = ">=6.0.12.20240808" },
 ]
 notebooks = [
-    { name = "ipykernel", specifier = ">=6.29" },
+    { name = "ipykernel", specifier = ">=7.1" },
     { name = "jupyterlab", specifier = ">=4.2" },
     { name = "matplotlib", specifier = ">=3.8" },
     { name = "nbformat", specifier = ">=5.10" },
-    { name = "pre-commit", specifier = ">=4.5" },
 ]
 
 [[package]]

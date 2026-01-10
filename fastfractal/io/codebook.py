@@ -13,6 +13,33 @@ _HDR_SZ = struct.calcsize(_HDR)
 _QHDR = "<fff"
 _QHDR_SZ = struct.calcsize(_QHDR)
 
+_CANONICAL_TRANSFORMS: tuple[int, ...] = (0, 1, 2, 3, 4, 5, 6, 7)
+
+
+def normalize_transform_ids(
+    transform_ids: tuple[int, ...] | None | str,
+) -> tuple[int, ...]:
+    if transform_ids is None:
+        return _CANONICAL_TRANSFORMS
+    if transform_ids == "all":
+        return tuple(range(0, 15))
+
+    ids: list[int] = []
+    seen: set[int] = set()
+    for t in transform_ids:
+        ti = int(t)
+        if ti < 0 or ti > 14:
+            raise ValueError(
+                f"transform_ids: invalid transform id {ti}; expected 0..14"
+            )
+        if ti not in seen:
+            ids.append(ti)
+            seen.add(ti)
+
+    if not ids:
+        raise ValueError("transform_ids: must contain at least one transform id")
+    return tuple(ids)
+
 
 def dump_code(code: FractalCode) -> bytes:
     h = int(code.height)

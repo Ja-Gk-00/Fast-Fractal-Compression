@@ -23,14 +23,6 @@ def downsample2x2(x: NDArray[np.float32]) -> NDArray[np.float32]:
     ).astype(np.float32, copy=False)
 
 
-def dequant_s(q: int, s_clip: float) -> float:
-    return float(q) * (2.0 * s_clip) / 255.0 - s_clip
-
-
-def dequant_o(q: int, o_min: float, o_max: float) -> float:
-    return o_min + float(q) * (o_max - o_min) / 255.0
-
-
 def _downsample_image2x2(cur: NDArray[np.float32]) -> NDArray[np.float32]:
     if cur.ndim == 2:
         if _HAS_DOWNSAMPLE:
