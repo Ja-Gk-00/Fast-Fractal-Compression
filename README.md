@@ -3,7 +3,7 @@
 # Fast Fractal 
 ![Image, intro](resources/images/repo_main.png)
 
-This document describes how to use Fast Fractal’s **Python** API to encode and decode images (arrays or files), how the main parameters affect quality/speed/size, and how to set up practical benchmarks and parameter sweeps.
+This documentation describes how to use Fast Fractal’s **Python** API to encode and decode images (arrays or files), how the main parameters affect quality/speed/size, and how to set up practical benchmarks and parameter sweeps.
 **Warning**. The package is in its early stages of development and some functionalities may not work optimally.
 
 
