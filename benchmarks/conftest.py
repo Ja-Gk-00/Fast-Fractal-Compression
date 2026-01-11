@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -368,11 +369,66 @@ def _summarize_overrides(d: dict[str, Any], keys: Sequence[str]) -> str:
     return "__".join(parts)
 
 
+def _is_pipeline(x: object) -> bool:
+    s = str(x)
+    return s in ("encode", "decode", "both")
+
+
+def _pick_pipeline(case: dict[str, object], defaults: dict[str, object]) -> str:
+    if "pipeline" in case and _is_pipeline(case["pipeline"]):
+        return str(case["pipeline"])
+    if "pipeline" in defaults and _is_pipeline(defaults["pipeline"]):
+        return str(defaults["pipeline"])
+
+    if "mode" in case and _is_pipeline(case["mode"]):
+        return str(case["mode"])
+    if "mode" in defaults and _is_pipeline(defaults["mode"]):
+        return str(defaults["mode"])
+
+    return "both"
+
+
+def _first_present(m: dict[str, object], keys: Sequence[str]) -> object | None:
+    for k in keys:
+        if k in m:
+            return m[k]
+    return None
+
+
+def _merge_section(
+    defaults: dict[str, object], case: dict[str, object], keys: Sequence[str]
+) -> dict[str, Any]:
+    d0 = _as_mapping(_first_present(defaults, keys))
+    c0 = _as_mapping(_first_present(case, keys))
+    out = dict(d0)
+    out.update(c0)
+    return out
+
+
 def _load_suite(path: Path, include_jpeg_cli: bool) -> list[BenchItem]:
-    cfg = load_yaml(path)
-    bench = _as_mapping(cfg.get("bench"))
+    raw = path.read_text(encoding="utf-8")
+    case_key_count = len(re.findall(r"(?m)^\s{0,2}case\s*:", raw))
+    if case_key_count > 1 and "cases:" not in raw:
+        raise ValueError(
+            "Benchmark suite contains multiple 'case:' keys. YAML will keep only the last one. "
+            "Use a single 'case:' (list) or rename the key to 'cases:' and put all cases there."
+        )
+
+    cfg = _as_mapping(load_yaml(path))
+
+    bench = _as_mapping(cfg.get("bench")) if "bench" in cfg else cfg
     defaults = _as_mapping(bench.get("defaults"))
-    cases = _as_list(bench.get("cases"))
+
+    if "cases" in bench:
+        cases = _as_list(bench.get("cases"))
+    elif "case" in bench:
+        cases = _as_list(bench.get("case"))
+    else:
+        cases = []
+
+    if len(cases) == 0 and len(defaults) > 0:
+        cases = [{}]
+
     max_items = int(bench.get("max_items") or 512)
 
     out: list[BenchItem] = []
@@ -381,43 +437,75 @@ def _load_suite(path: Path, include_jpeg_cli: bool) -> list[BenchItem]:
     for i, c0 in enumerate(cases):
         case = _as_mapping(c0)
         base_name = str(case.get("name") or f"{path.stem}_{i}")
-        mode = str(case.get("mode") or defaults.get("mode") or "both")
-        if mode not in ("encode", "decode", "both"):
-            raise ValueError("mode must be encode/decode/both")
+
+        mode = _pick_pipeline(case=case, defaults=defaults)
 
         jpeg_quality = int(
-            case.get("jpeg_quality") or defaults.get("jpeg_quality") or 90
+            case.get("jpeg_quality")
+            or defaults.get("jpeg_quality")
+            or bench.get("jpeg_quality")
+            or 90
         )
 
-        include_jpeg = bool(
-            case.get("include_jpeg")
-            if "include_jpeg" in case
-            else bench.get("include_jpeg")
-        )
-        if "include_jpeg" not in case and "include_jpeg" not in bench:
+        if "include_jpeg" in case:
+            include_jpeg = bool(case.get("include_jpeg"))
+        elif "include_jpeg" in defaults:
+            include_jpeg = bool(defaults.get("include_jpeg"))
+        elif "include_jpeg" in bench:
+            include_jpeg = bool(bench.get("include_jpeg"))
+        else:
             include_jpeg = True
         if include_jpeg_cli is False:
             include_jpeg = False
 
-        if "codec_config" in case or "config" in case:
-            p = case.get("codec_config") or case.get("config")
-            if p is None:
-                raise ValueError("codec_config missing")
+        p = (
+            case.get("codec_config")
+            or case.get("config")
+            or defaults.get("codec_config")
+            or defaults.get("config")
+            or bench.get("codec_config")
+            or bench.get("config")
+        )
+        if p is not None:
             enc0, dec0 = _resolve_codec_from_cfg((base_dir / str(p)).resolve())
         else:
             enc0 = _default_encode_kwargs()
             dec0 = _default_decode_kwargs()
 
-        enc_over = _as_mapping(case.get("encode"))
-        dec_over = _as_mapping(case.get("decode"))
+        enc_over = _merge_section(defaults, case, keys=("encode", "encoder"))
+        dec_over = _merge_section(defaults, case, keys=("decode", "decoder"))
+
+        decode_iters = (
+            case.get("decode_iterations")
+            if "decode_iterations" in case
+            else defaults.get("decode_iterations")
+        )
+        if decode_iters is not None and "iterations" not in dec_over:
+            dec_over["iterations"] = int(decode_iters)
 
         enc_variants = _expand_overrides(enc0, enc_over)
         dec_variants = _expand_overrides(dec0, dec_over)
 
-        imgs = _images_from_case(case, base_dir)
+        img_case: dict[str, object] = dict(defaults)
+        for k, v in case.items():
+            if k in ("encode", "encoder", "decode", "decoder"):
+                continue
+            img_case[k] = v
+        imgs = _images_from_case(img_case, base_dir)
 
-        key_hint_enc = sorted(enc_over.keys())
-        key_hint_dec = sorted(dec_over.keys())
+        enc_case_only = _as_mapping(_first_present(case, ("encode", "encoder")))
+        dec_case_only = _as_mapping(_first_present(case, ("decode", "decoder")))
+
+        key_hint_enc = sorted(
+            k
+            for k, v in enc_over.items()
+            if isinstance(v, (list, dict)) or k in enc_case_only
+        )
+        key_hint_dec = sorted(
+            k
+            for k, v in dec_over.items()
+            if isinstance(v, (list, dict)) or k in dec_case_only
+        )
 
         for enc_k in enc_variants:
             for dec_k in dec_variants:
@@ -447,6 +535,7 @@ def _load_suite(path: Path, include_jpeg_cli: bool) -> list[BenchItem]:
 
                     if len(out) >= max_items:
                         return out
+
     return out
 
 
