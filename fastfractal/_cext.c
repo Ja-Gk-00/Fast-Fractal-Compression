@@ -6,7 +6,12 @@
 #include <math.h>
 #include <stdint.h>
 
-PyObject* fastfractal_encode_leaf_best(PyObject* self, PyObject* args);
+#define IRLS_ITERS 2
+#define HUBER_DELTA 0.05
+#define CAUCHY_SCALE 0.05
+#define SIG_ALPHA 12.0
+#define SIG_BETA 0.05
+#define RIDGE_LAMBDA_PER_N 1e-4
 
 static PyObject* downsample2x2(PyObject* self, PyObject* args) {
     PyObject* src_obj = NULL;
@@ -40,8 +45,8 @@ static PyObject* downsample2x2(PyObject* self, PyObject* args) {
 
     float* s = (float*)PyArray_DATA(src);
     float* o = (float*)PyArray_DATA(out);
-    npy_intp ss0 = PyArray_STRIDE(src, 0) / (npy_intp)sizeof(float);
-    npy_intp ss1 = PyArray_STRIDE(src, 1) / (npy_intp)sizeof(float);
+    npy_intp ss0 = PyArray_STRIDE(src, 0) / sizeof(float);
+    npy_intp ss1 = PyArray_STRIDE(src, 1) / sizeof(float);
 
     for (npy_intp y = 0; y < oh; y++) {
         for (npy_intp x = 0; x < ow; x++) {
@@ -78,7 +83,6 @@ static PyObject* linreg_error(PyObject* self, PyObject* args) {
         PyErr_SetString(PyExc_ValueError, "inputs must be 1D");
         return NULL;
     }
-
     npy_intp n = PyArray_DIM(d, 0);
     if (PyArray_DIM(r, 0) != n) {
         Py_DECREF(d);
@@ -90,8 +94,64 @@ static PyObject* linreg_error(PyObject* self, PyObject* args) {
     float* dp = (float*)PyArray_DATA(d);
     float* rp = (float*)PyArray_DATA(r);
 
-    double sumD = 0.0;
-    double sumR = 0.0;
+    double sumD=0.0, sumR=0.0, sumDD=0.0, sumRR=0.0, sumRD=0.0;
+    for (npy_intp i=0; i<n; i++) {
+        double dv = dp[i], rv = rp[i];
+        sumD += dv; sumR += rv;
+        sumDD += dv*dv; sumRR += rv*rv; sumRD += dv*rv;
+    }
+    double dn = (double)n;
+    double denom = dn*sumDD - sumD*sumD;
+
+    double s=0.0, o=0.0;
+    if (fabs(denom) < 1e-18) {
+        o = sumR/dn;
+    } else {
+        s = (dn*sumRD - sumD*sumR) / denom;
+        o = (sumR - s*sumD) / dn;
+    }
+
+    double err = sumRR + s*s*sumDD + dn*o*o - 2.0*s*sumRD - 2.0*o*sumR + 2.0*s*o*sumD;
+
+    Py_DECREF(d);
+    Py_DECREF(r);
+    return Py_BuildValue("ddd", s, o, err);
+}
+
+static PyObject* ridge_error(PyObject* self, PyObject* args) {
+    PyObject* d_obj = NULL;
+    PyObject* r_obj = NULL;
+    if (!PyArg_ParseTuple(args, "OO", &d_obj, &r_obj)) return NULL;
+
+    PyArrayObject* d = (PyArrayObject*)PyArray_FROM_OTF(d_obj, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
+    if (!d) return NULL;
+
+    PyArrayObject* r = (PyArrayObject*)PyArray_FROM_OTF(r_obj, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
+    if (!r) {
+        Py_DECREF(d);
+        return NULL;
+    }
+
+    if (PyArray_NDIM(d) != 1 || PyArray_NDIM(r) != 1) {
+        Py_DECREF(d);
+        Py_DECREF(r);
+        PyErr_SetString(PyExc_ValueError, "inputs must be 1D");
+        return NULL;
+    }
+
+    npy_intp n = PyArray_DIM(d, 0);
+    if (PyArray_DIM(r, 0) != n) {
+        Py_DECREF(d);
+        Py_DECREF(r);
+        PyErr_SetString(PyExc_ValueError, "length mismatch");
+        return NULL;
+    }
+
+    const float* dp = (const float*)PyArray_DATA(d);
+    const float* rp = (const float*)PyArray_DATA(r);
+
+    double sumD  = 0.0;
+    double sumR  = 0.0;
     double sumDD = 0.0;
     double sumRR = 0.0;
     double sumRD = 0.0;
@@ -99,15 +159,16 @@ static PyObject* linreg_error(PyObject* self, PyObject* args) {
     for (npy_intp i = 0; i < n; i++) {
         double dv = (double)dp[i];
         double rv = (double)rp[i];
-        sumD += dv;
-        sumR += rv;
+        sumD  += dv;
+        sumR  += rv;
         sumDD += dv * dv;
         sumRR += rv * rv;
         sumRD += dv * rv;
     }
 
-    double dn = (double)n;
-    double denom = dn * sumDD - sumD * sumD;
+    const double dn = (double)n;
+    const double lambda = 1e-3 * dn;
+    const double denom = dn * (sumDD + lambda) - sumD * sumD;
 
     double s = 0.0;
     double o = 0.0;
@@ -120,12 +181,293 @@ static PyObject* linreg_error(PyObject* self, PyObject* args) {
         o = (sumR - s * sumD) / dn;
     }
 
-    double err = sumRR + s * s * sumDD + dn * o * o - 2.0 * s * sumRD - 2.0 * o * sumR + 2.0 * s * o * sumD;
+    const double err =
+        sumRR
+        + s * s * sumDD
+        + dn * o * o
+        - 2.0 * s * sumRD
+        - 2.0 * o * sumR
+        + 2.0 * s * o * sumD;
 
     Py_DECREF(d);
     Py_DECREF(r);
-
     return Py_BuildValue("ddd", s, o, err);
+}
+
+static PyObject* quadreg_error(PyObject* self, PyObject* args) {
+    PyObject* d_obj = NULL;
+    PyObject* r_obj = NULL;
+    if (!PyArg_ParseTuple(args, "OO", &d_obj, &r_obj)) return NULL;
+
+    PyArrayObject* d = (PyArrayObject*)PyArray_FROM_OTF(d_obj, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
+    if (!d) return NULL;
+
+    PyArrayObject* r = (PyArrayObject*)PyArray_FROM_OTF(r_obj, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
+    if (!r) {
+        Py_DECREF(d);
+        return NULL;
+    }
+
+    if (PyArray_NDIM(d) != 1 || PyArray_NDIM(r) != 1) {
+        Py_DECREF(d);
+        Py_DECREF(r);
+        PyErr_SetString(PyExc_ValueError, "inputs must be 1D");
+        return NULL;
+    }
+
+    npy_intp n = PyArray_DIM(d, 0);
+    if (PyArray_DIM(r, 0) != n) {
+        Py_DECREF(d);
+        Py_DECREF(r);
+        PyErr_SetString(PyExc_ValueError, "length mismatch");
+        return NULL;
+    }
+
+    const float* dp = (const float*)PyArray_DATA(d);
+    const float* rp = (const float*)PyArray_DATA(r);
+
+    double sumX   = 0.0;
+    double sumXX  = 0.0;
+    double sumR   = 0.0;
+    double sumRR  = 0.0;
+    double sumRX  = 0.0;
+
+    for (npy_intp i = 0; i < n; i++) {
+        double dv = (double)dp[i];
+        double rv = (double)rp[i];
+        double x  = dv * dv;
+
+        sumX  += x;
+        sumXX += x * x;
+        sumR  += rv;
+        sumRR += rv * rv;
+        sumRX += rv * x;
+    }
+
+    const double dn = (double)n;
+    const double denom = dn * sumXX - sumX * sumX;
+
+    double s = 0.0;
+    double o = 0.0;
+
+    if (fabs(denom) < 1e-18) {
+        s = 0.0;
+        o = sumR / dn;
+    } else {
+        s = (dn * sumRX - sumX * sumR) / denom;
+        o = (sumR - s * sumX) / dn;
+    }
+
+    const double err =
+        sumRR
+        + s * s * sumXX
+        + dn * o * o
+        - 2.0 * s * sumRX
+        - 2.0 * o * sumR
+        + 2.0 * s * o * sumX;
+
+    Py_DECREF(d);
+    Py_DECREF(r);
+    return Py_BuildValue("ddd", s, o, err);
+}
+
+static PyObject* huber_error(PyObject* self, PyObject* args) {
+    PyObject* d_obj = NULL;
+    PyObject* r_obj = NULL;
+    if (!PyArg_ParseTuple(args, "OO", &d_obj, &r_obj)) return NULL;
+
+    PyArrayObject* d = (PyArrayObject*)PyArray_FROM_OTF(d_obj, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
+    if (!d) return NULL;
+    PyArrayObject* r = (PyArrayObject*)PyArray_FROM_OTF(r_obj, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
+    if (!r) { Py_DECREF(d); return NULL; }
+
+    if (PyArray_NDIM(d) != 1 || PyArray_NDIM(r) != 1) {
+        PyErr_SetString(PyExc_ValueError, "inputs must be 1D");
+        Py_DECREF(d); Py_DECREF(r);
+        return NULL;
+    }
+    npy_intp n = PyArray_DIM(d,0);
+    if (PyArray_DIM(r,0) != n) {
+        PyErr_SetString(PyExc_ValueError, "length mismatch");
+        Py_DECREF(d); Py_DECREF(r);
+        return NULL;
+    }
+
+    float* dp = (float*)PyArray_DATA(d);
+    float* rp = (float*)PyArray_DATA(r);
+
+    double sumR=0.0;
+    for (npy_intp i=0;i<n;i++) sumR += (double)rp[i];
+    double o = sumR / (double)n;
+    double s = 0.0;
+
+    double delta = 0.05;
+    int iters = 3;
+    for(int it=0; it<iters; it++){
+        double sumW=0,sumWD=0,sumWDD=0,sumWR=0,sumWDR=0;
+        for(npy_intp i=0;i<n;i++){
+            double dv = dp[i], rv = rp[i];
+            double res = rv - (s*dv+o);
+            double a = fabs(res);
+            double w = (a<=delta)?1.0:(delta/a);
+            sumW += w;
+            sumWD += w*dv;
+            sumWDD += w*dv*dv;
+            sumWR += w*rv;
+            sumWDR += w*dv*rv;
+        }
+        double denom = sumW*sumWDD - sumWD*sumWD;
+        if(fabs(denom)<1e-18) {
+            o = sumWR / sumW;
+            s = 0;
+        } else {
+            s = (sumW*sumWDR - sumWD*sumWR)/denom;
+            o = (sumWR - s*sumWD)/sumW;
+        }
+    }
+
+    double err=0;
+    for(npy_intp i=0;i<n;i++){
+        double dv=dp[i], rv=rp[i];
+        double res=rv-(s*dv+o), a=fabs(res);
+        if(a<=0.05) err += 0.5*res*res;
+        else err += 0.05*(a - 0.5*0.05);
+    }
+
+    Py_DECREF(d); Py_DECREF(r);
+    return Py_BuildValue("ddd", s, o, err);
+}
+
+static PyObject* cauchy_error(PyObject* self, PyObject* args) {
+    PyObject* d_obj=NULL, *r_obj=NULL;
+    if(!PyArg_ParseTuple(args,"OO",&d_obj,&r_obj)) return NULL;
+
+    PyArrayObject* d = (PyArrayObject*)PyArray_FROM_OTF(d_obj, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
+    if(!d) return NULL;
+    PyArrayObject* r = (PyArrayObject*)PyArray_FROM_OTF(r_obj, NPY_FLOAT32, NPY_ARRAY_IN_ARRAY);
+    if(!r){Py_DECREF(d);return NULL;}
+
+    if(PyArray_NDIM(d)!=1||PyArray_NDIM(r)!=1){
+        PyErr_SetString(PyExc_ValueError,"inputs must be 1D");
+        Py_DECREF(d);Py_DECREF(r);return NULL;
+    }
+    npy_intp n=PyArray_DIM(d,0);
+    if(PyArray_DIM(r,0)!=n){
+        PyErr_SetString(PyExc_ValueError,"length mismatch");
+        Py_DECREF(d);Py_DECREF(r);return NULL;
+    }
+
+    float* dp=(float*)PyArray_DATA(d);
+    float* rp=(float*)PyArray_DATA(r);
+
+    double sumR=0; for(npy_intp i=0;i<n;i++) sumR += (double)rp[i];
+    double o=sumR/(double)n, s=0.0;
+    double inv_sc2 = 1.0/(0.05*0.05);
+
+    int iters=3;
+    for(int it=0;it<iters;it++){
+        double sumW=0,sumWD=0,sumWDD=0,sumWR=0,sumWDR=0;
+        for(npy_intp i=0;i<n;i++){
+            double dv=dp[i], rv=rp[i];
+            double res = rv-(s*dv+o);
+            double w = 1.0/(1.0 + (res*res)*inv_sc2);
+            sumW += w;
+            sumWD += w*dv;
+            sumWDD += w*dv*dv;
+            sumWR += w*rv;
+            sumWDR += w*dv*rv;
+        }
+        double denom = sumW*sumWDD - sumWD*sumWD;
+        if(fabs(denom)<1e-18){o=sumWR/sumW;s=0;} else {
+            s=(sumW*sumWDR - sumWD*sumWR)/denom;
+            o=(sumWR - s*sumWD)/sumW;
+        }
+    }
+    double err=0;
+    for(npy_intp i=0;i<n;i++){
+        double dv=dp[i], rv=rp[i];
+        double res = rv-(s*dv+o);
+        err += res*res;
+    }
+
+    Py_DECREF(d);Py_DECREF(r);
+    return Py_BuildValue("ddd",s,o,err);
+}
+
+static PyObject* sigmoid_error(PyObject* self, PyObject* args) {
+    PyObject* d_obj=NULL,*r_obj=NULL;
+    if(!PyArg_ParseTuple(args,"OO",&d_obj,&r_obj))return NULL;
+
+    PyArrayObject* d=(PyArrayObject*)PyArray_FROM_OTF(d_obj,NPY_FLOAT32,NPY_ARRAY_IN_ARRAY);
+    if(!d)return NULL;
+    PyArrayObject* r=(PyArrayObject*)PyArray_FROM_OTF(r_obj,NPY_FLOAT32,NPY_ARRAY_IN_ARRAY);
+    if(!r){Py_DECREF(d);return NULL;}
+
+    if(PyArray_NDIM(d)!=1||PyArray_NDIM(r)!=1){
+        PyErr_SetString(PyExc_ValueError,"inputs must be 1D");
+        Py_DECREF(d);Py_DECREF(r);return NULL;
+    }
+    npy_intp n=PyArray_DIM(d,0);
+    if(PyArray_DIM(r,0)!=n){
+        PyErr_SetString(PyExc_ValueError,"length mismatch");Py_DECREF(d);Py_DECREF(r);return NULL;
+    }
+
+    float* dp=(float*)PyArray_DATA(d);
+    float* rp=(float*)PyArray_DATA(r);
+
+    double sumR=0;for(npy_intp i=0;i<n;i++)sumR+=(double)rp[i];
+    double o=sumR/(double)n,s=0.0;
+
+    int iters=3;
+    for(int it=0;it<iters;it++){
+        double sumW=0,sumWD=0,sumWDD=0,sumWR=0,sumWDR=0;
+        for(npy_intp i=0;i<n;i++){
+            double dv=dp[i], rv=rp[i];
+            double res=fabs(rv-(s*dv+o));
+            double w=1.0/(1.0+exp(SIG_ALPHA*(res-SIG_BETA)));
+            sumW+=w; sumWD+=w*dv; sumWDD+=w*dv*dv;
+            sumWR+=w*rv; sumWDR+=w*dv*rv;
+        }
+        double denom = sumW*sumWDD - sumWD*sumWD;
+        if(fabs(denom)<1e-18){o=sumWR/sumW; s=0;} else {
+            s=(sumW*sumWDR - sumWD*sumWR)/denom;
+            o=(sumWR - s*sumWD)/sumW;
+        }
+    }
+
+    double err=0;
+    for(npy_intp i=0;i<n;i++){
+        double dv=dp[i], rv=rp[i];
+        double res=rv-(s*dv+o);
+        err+=res*res;
+    }
+
+    Py_DECREF(d);Py_DECREF(r);
+    return Py_BuildValue("ddd",s,o,err);
+}
+
+static PyObject* fast_error(PyObject* self, PyObject* args) {
+    PyObject* d_obj=NULL,*r_obj=NULL;
+    if(!PyArg_ParseTuple(args,"OO",&d_obj,&r_obj))return NULL;
+
+    PyArrayObject* r=(PyArrayObject*)PyArray_FROM_OTF(r_obj,NPY_FLOAT32,NPY_ARRAY_IN_ARRAY);
+    if(!r)return NULL;
+
+    if(PyArray_NDIM(r)!=1){
+        PyErr_SetString(PyExc_ValueError,"r must be 1D");Py_DECREF(r);return NULL;
+    }
+    npy_intp n=PyArray_DIM(r,0);
+    if(n<=0){Py_DECREF(r);return Py_BuildValue("ddd",0.0,0.0,0.0);}
+
+    float* rp=(float*)PyArray_DATA(r);
+    double sum=0;
+    for(npy_intp i=0;i<n;i++) sum+=(double)rp[i];
+    double o=sum/(double)n;
+    double err=0;
+    for(npy_intp i=0;i<n;i++){double rv=rp[i]; double res=rv-o; err+=res*res;}
+
+    Py_DECREF(r);
+    return Py_BuildValue("ddd",0.0,o,err);
 }
 
 static inline double dot_f32(const float* a, const float* b, npy_intp n) {
@@ -141,33 +483,31 @@ static inline double dot_f32(const float* a, const float* b, npy_intp n) {
     return acc;
 }
 
-typedef struct {
-    double score;
-    npy_int64 idx;
-} ScoreIdx;
+typedef struct { double score; npy_int64 idx; } ScoreIdx;
 
-static inline void heap_sift_down(ScoreIdx* heap, npy_intp n, npy_intp i) {
+static void heap_sift_down(ScoreIdx* heap, npy_intp n, npy_intp i) {
     while (1) {
-        npy_intp l = 2 * i + 1;
+        npy_intp l = 2*i + 1;
         npy_intp r = l + 1;
         npy_intp smallest = i;
-
         if (l < n && heap[l].score < heap[smallest].score) smallest = l;
         if (r < n && heap[r].score < heap[smallest].score) smallest = r;
         if (smallest == i) break;
-
-        ScoreIdx tmp = heap[i];
-        heap[i] = heap[smallest];
-        heap[smallest] = tmp;
+        ScoreIdx tmp = heap[i]; heap[i] = heap[smallest]; heap[smallest] = tmp;
         i = smallest;
     }
 }
 
-static inline void heap_build(ScoreIdx* heap, npy_intp n) {
-    for (npy_intp i = (n / 2) - 1; i >= 0; i--) {
-        heap_sift_down(heap, n, i);
-        if (i == 0) break;
+static void heap_build(ScoreIdx* heap, npy_intp n) {
+    for (npy_intp i = (n/2) - 1; i >= 0; --i) {
+        heap_sift_down(heap,n,i);
+        if(i==0) break;
     }
+}
+
+static int cmp_desc(const void* a,const void* b){
+    double da=((ScoreIdx*)a)->score, db=((ScoreIdx*)b)->score;
+    return (da<db) - (da>db);
 }
 
 static int cmp_desc_score(const void* a, const void* b) {
@@ -313,9 +653,18 @@ static PyObject* topk_from_subset(PyObject* self, PyObject* args) {
     return (PyObject*)out;
 }
 
+PyObject* fastfractal_encode_leaf_best(PyObject*, PyObject*);
+
 static PyMethodDef Methods[] = {
     {"downsample2x2", (PyCFunction)downsample2x2, METH_VARARGS, NULL},
-    {"linreg_error",  (PyCFunction)linreg_error,  METH_VARARGS, NULL},
+    {"linreg_error", (PyCFunction)linreg_error, METH_VARARGS, NULL},
+    {"ridge_error", (PyCFunction)ridge_error, METH_VARARGS, NULL},
+    {"quadreg_error", (PyCFunction)quadreg_error, METH_VARARGS, NULL},
+    {"huber_error", (PyCFunction)huber_error, METH_VARARGS, NULL},
+    {"cauchy_error", (PyCFunction)cauchy_error, METH_VARARGS, NULL},
+    {"sigmoid_error", (PyCFunction)sigmoid_error, METH_VARARGS, NULL},
+    {"fast_error", (PyCFunction)fast_error, METH_VARARGS, NULL},
+
     {"topk_from_subset", (PyCFunction)topk_from_subset, METH_VARARGS, NULL},
     {"encode_leaf_best", (PyCFunction)fastfractal_encode_leaf_best, METH_VARARGS, NULL},
     {NULL, NULL, 0, NULL}
@@ -331,6 +680,5 @@ static struct PyModuleDef moduledef = {
 
 PyMODINIT_FUNC PyInit__cext(void) {
     import_array();
-    if (PyErr_Occurred()) return NULL;
     return PyModule_Create(&moduledef);
 }

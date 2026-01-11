@@ -17,6 +17,7 @@ from fastfractal.core.quantization import (
     quant_s,
     rgb_to_luma,
 )
+from fastfractal.core.regression import RegressionKind, resolve_regression
 from fastfractal.core.search import (
     SearchBackend,
     topk_from_subset,
@@ -29,42 +30,8 @@ from fastfractal.utils.entropy import entropy01, var01
 if TYPE_CHECKING:
     from numpy.typing import NDArray
 
-_HAS_LINREG = hasattr(_cext, "linreg_error")
 _HAS_TOPK = hasattr(_cext, "topk_from_subset")
 _HAS_ENCODE_LEAF = hasattr(_cext, "encode_leaf_best")
-
-
-def linreg_error(
-    d: NDArray[np.float32], r: NDArray[np.float32]
-) -> tuple[float, float, float]:
-    if _HAS_LINREG:
-        s, o, e = _cext.linreg_error(d, r)
-        return float(s), float(o), float(e)
-
-    dv = d.astype(np.float64, copy=False)
-    rv = r.astype(np.float64, copy=False)
-    n = float(dv.size)
-    sumD = float(dv.sum())
-    sumR = float(rv.sum())
-    sumDD = float((dv * dv).sum())
-    sumRR = float((rv * rv).sum())
-    sumRD = float((dv * rv).sum())
-    denom = n * sumDD - sumD * sumD
-    if abs(denom) < 1e-18:
-        s = 0.0
-        o = sumR / n
-    else:
-        s = (n * sumRD - sumD * sumR) / denom
-        o = (sumR - s * sumD) / n
-    err = (
-        sumRR
-        + s * s * sumDD
-        + n * o * o
-        - 2.0 * s * sumRD
-        - 2.0 * o * sumR
-        + 2.0 * s * o * sumD
-    )
-    return float(s), float(o), float(err)
 
 
 def pad_to_multiple(
@@ -184,6 +151,7 @@ def encode_leaf(
     quantized: bool,
     topk: int,
     lsh_budget: int,
+    regression: RegressionKind | str = "linear",
 ) -> tuple[int, int, NDArray[np.uint8] | NDArray[np.float32], float]:
     b = int(pool.block)
     c = 1 if img.ndim == 2 else int(img.shape[2])
@@ -210,6 +178,8 @@ def encode_leaf(
         pool, q, bid, topk=int(topk), lsh_budget=int(lsh_budget)
     )
 
+    reg_fn = resolve_regression(regression)
+
     if _HAS_ENCODE_LEAF and not (use_s_sets and use_buckets):
         cand_i32 = np.ascontiguousarray(cand, dtype=np.int32)
 
@@ -228,6 +198,7 @@ def encode_leaf(
             float(o_min),
             float(o_max),
             int(quantized),
+            str(regression),
         )
 
     if quantized:
@@ -256,7 +227,7 @@ def encode_leaf(
             k = int(ci)
             domv = pool.tf_flat[k, 0, :]
 
-            s0, o0, _ = linreg_error(domv, r)
+            s0, o0, _ = reg_fn(domv, r)
             s1 = post_s_scalar(s0)
             o1 = _clipf(o0, float(o_min), float(o_max))
 
@@ -466,6 +437,7 @@ def encode_array(
     max_domains: int | None = None,
     block: int | None = None,
     iterations_hint: int = 8,
+    regression: str | RegressionKind = "linear",
     *,
     precompute_stats: bool = True,
 ) -> FractalCode:
@@ -575,6 +547,7 @@ def encode_array(
             quantized=quantized,
             topk=topk,
             lsh_budget=lsh_budget,
+            regression=regression,
         )
         leaf_yx_list.append((y0, x0))
         leaf_pool_list.append(pi)
@@ -688,6 +661,7 @@ def encode_to_file(
     max_domains: int | None = None,
     block: int | None = None,
     transform_ids: tuple[int, ...] | None = None,
+    regression: RegressionKind | str = "linear",
 ) -> None:
     img = load_image(input_path)
     code = encode_array(
@@ -714,5 +688,6 @@ def encode_to_file(
         max_domains=max_domains,
         transform_ids=transform_ids,
         block=block,
+        regression=regression,
     )
     save_code(output_path, code)

@@ -23,6 +23,7 @@ mypyc_targets = [
     "fastfractal/core/transforms.py",
     "fastfractal/core/quantization.py",
     "fastfractal/core/poolbuilder.py",
+    "fastfractal/core/regression.py",
     #"fastfractal/core/search.py", #TODO revamp so mypyc can compile
     "fastfractal/core/blocks.py",
 ]

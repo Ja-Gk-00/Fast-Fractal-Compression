@@ -143,6 +143,9 @@ def _encode_kwargs(encode_array: object, p: Preset) -> dict[str, object]:
     if "quantized" in names:
         out["quantized"] = p.params["quantized"]
 
+    if "transform_ids" in names and "transform_ids" in p.params:
+        out["transform_ids"] = p.params["transform_ids"]
+
     return _filter_kwargs(encode_array, out)
 
 
@@ -213,3 +216,30 @@ def test_integration_encode_decode_file_pipeline(
 
     im = Image.open(out_img)
     assert im.size[0] > 0 and im.size[1] > 0
+
+
+_REGRESSIONS = ("linear", "quadreg", "sigmoid", "fast", "huber", "cauchy")
+
+
+@pytest.mark.parametrize("regression", _REGRESSIONS)
+def test_integration_encode_decode_array_regression(regression: str) -> None:
+    if "regression" not in inspect.signature(encode_array).parameters:
+        pytest.skip("encode_array has no 'regression' parameter")
+
+    img_path = IMAGE_PATHS[0]
+    preset = PRESETS[0]
+
+    x = load_image(img_path, mode="L")
+    x = x[:128, :128].astype(np.float32, copy=False)
+
+    kwargs = _encode_kwargs(encode_array, preset)
+    kwargs["regression"] = regression
+    kwargs = _filter_kwargs(encode_array, kwargs)
+
+    code = encode_array(x, **kwargs)
+    rec = decode_array(code, iterations=int(preset.decode_iterations))
+
+    if rec.ndim == 3 and rec.shape[2] == 1:
+        rec = rec[:, :, 0].astype(np.float32, copy=False)
+
+    _assert_reconstruction(x, rec.astype(np.float32, copy=False))
