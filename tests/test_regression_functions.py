@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from typing import Callable
 
 from fastfractal.core.regression import (
     cauchy_error,
