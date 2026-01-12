@@ -4,6 +4,7 @@ name: test1
 defaults:
   mode: RGB
   pipeline: encode
+  pattern: smooth
   decode_iterations: 8
   image: ../../tests/test-data/lena-colour.png
   encoder:
