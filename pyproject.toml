@@ -14,6 +14,8 @@ notebooks = [
     "jupyterlab>=4.2",
     "matplotlib>=3.8",
     "nbformat>=5.10",
+    "pandas>=2.3.3",
+    "seaborn>=0.13.2",
 ]
 
 dev = [

@@ -1,0 +1,32 @@
+version: 1
+name: test1
+
+defaults:
+  mode: RGB
+  pipeline: encode
+  pattern: smooth
+  decode_iterations: 8
+  image: ../../tests/test-data/lena-colour.png
+  encoder:
+    max_block: [4, 16]
+    min_block: 4
+    topk: 16
+    entropy_thresh: 0.0
+    max_domains: 256
+    use_quadtree: [false, true]
+    quantized: true
+    stride: 2
+
+case:
+    - name: stride_3
+      encoder:
+        stride: 3
+    - name: stride_7
+      encoder:
+        stride: 7
+    - name: topk_check
+      encoder:
+        topk: [2, 4, 8]
+    - name: min_block
+      encoder:
+        min_block: 2
