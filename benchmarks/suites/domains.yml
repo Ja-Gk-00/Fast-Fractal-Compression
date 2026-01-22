@@ -1,0 +1,17 @@
+version: 1
+name: test1
+
+defaults:
+  mode: RGB
+  pipeline: encode
+  decode_iterations: 8
+  image: ../../tests/test-data/lena-colour.png
+  encoder:
+    max_block: 16
+    min_block: 4
+    topk: [4,8,12,16,32, 64]
+    entropy_thresh: 0.0
+    max_domains: [64,128,256]
+    use_quadtree: [true]
+    quantized: true
+    stride: 4

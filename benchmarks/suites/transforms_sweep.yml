@@ -3,7 +3,7 @@ benchmark:
   dataset: "./bench/images"
   outputs: "./bench/results"
   warmup: 1
-  runs: 3
+  runs: 2
   decode_iterations: 8
   metrics:
     - "psnr"

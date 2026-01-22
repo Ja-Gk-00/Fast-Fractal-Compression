@@ -1,8 +1,90 @@
 import pandas as pd
 import json
 import re
-import seaborn as sns
-import matplotlib.pyplot as plt
+import plotly.express as px
+
+
+def visualize_bench_result(df, features):
+    if isinstance(features, str):
+        features_list = [features]
+    elif isinstance(features, list):
+        features_list = features[:2]
+    else:
+        print("Error: Argument 'features' must be string or list type.")
+        return
+
+    for feature in features_list:
+        if feature not in df.columns:
+            print(f"Warning: Feature '{feature}' was not found in the data.")
+            continue
+
+        df_agg = df.groupby(feature, as_index=False).mean(numeric_only=True)
+        df_agg = df_agg.sort_values(by=feature)
+        df_agg[feature] = df_agg[feature].astype(str)
+
+        fig_time = px.bar(
+            df_agg,
+            x=feature,
+            y="ffc_mean_s",
+            title=f"Impact of {feature.upper()} on mean compression time",
+            labels={feature: f"Feature: {feature}", "ffc_mean_s": "Mean time [s]"},
+            template="plotly_white",
+        )
+        fig_time.update_traces(
+            marker_color="#4682B4",
+            marker_line_color="rgb(8,48,107)",
+            marker_line_width=1.5,
+        )
+        fig_time.update_layout(xaxis={"type": "category"})
+        fig_time.show()
+
+        fig_ratio = px.line(
+            df_agg,
+            x=feature,
+            y="ffc_compression_ratio",
+            markers=True,
+            title=f"Impact of {feature.upper()} on compression ratio",
+            labels={"ffc_compression_ratio": "Compression ratio"},
+            template="plotly_white",
+        )
+
+        if "jpeg_compression_ratio" in df.columns:
+            jpeg_avg = df["jpeg_compression_ratio"].mean()
+            fig_ratio.add_hline(
+                y=jpeg_avg,
+                line_dash="dash",
+                line_color="#FF4B4B",
+                annotation_text=f"JPEG Avg ({jpeg_avg:.2f})",
+                annotation_position="bottom right",
+            )
+
+        fig_ratio.update_xaxes(type="category")
+        fig_ratio.update_traces(line_width=4, marker_size=12, line_color="#2E4053")
+        fig_ratio.show()
+
+    if len(features_list) == 2:
+        f1, f2 = features_list
+
+        df_heat = df.groupby([f1, f2], as_index=False).mean(numeric_only=True)
+        df_pivot = df_heat.pivot(index=f1, columns=f2, values="ffc_mean_s")
+
+        df_pivot = df_pivot.sort_index(axis=0).sort_index(axis=1)
+        df_pivot.index = df_pivot.index.astype(str)
+        df_pivot.columns = df_pivot.columns.astype(str)
+
+        fig_heat = px.imshow(
+            df_pivot,
+            labels=dict(x=f2, y=f1, color="Mean time [s]"),
+            x=df_pivot.columns,
+            y=df_pivot.index,
+            aspect="auto",
+            color_continuous_scale="Viridis",
+            title=f"Mean compression time: {f1} vs {f2}",
+            template="plotly_white",
+            text_auto=".3f",
+        )
+        fig_heat.update_layout(xaxis={"type": "category"}, yaxis={"type": "category"})
+        fig_heat.show()
 
 
 def extract_fractal_benchmarks_extended(json_path):
@@ -77,70 +159,3 @@ def extract_fractal_benchmarks_extended(json_path):
         c for c in final_df.columns if c not in ["image_name", "case_name"]
     ]
     return final_df[cols]
-
-
-def visualize_benchmark_results(df, features, mode="both"):
-    sns.set_theme(style="whitegrid")
-
-    jpeg_ratio_val = None
-    if "jpeg_compression_ratio" in df.columns:
-        jpeg_ratio_val = df["jpeg_compression_ratio"].mean()
-
-    for feature in features:
-        if feature not in df.columns:
-            print(f"Warning: Feature '{feature}' was not found in data.")
-            continue
-
-        plot_df = df.sort_values(by=feature)
-
-        if mode in ["time", "both"]:
-            plt.figure(figsize=(10, 5))
-            sns.barplot(
-                data=plot_df,
-                x=feature,
-                y="ffc_mean_s",
-                color="skyblue",
-                edgecolor="black",
-            )
-            plt.title(f"Impact of {feature} on mean compression time")
-            plt.ylabel("Mean time [s]")
-            plt.xlabel(feature)
-            plt.tight_layout()
-            plt.show()
-
-        if mode in ["ratio", "both"]:
-            plt.figure(figsize=(10, 5))
-            sns.lineplot(
-                data=plot_df,
-                x=feature,
-                y="ffc_compression_ratio",
-                marker="o",
-                color="coral",
-                linewidth=2,
-                label="FFC (Fractal)",
-            )
-
-            if jpeg_ratio_val is not None:
-                plt.axhline(
-                    y=jpeg_ratio_val,
-                    color="red",
-                    linestyle="--",
-                    linewidth=1.5,
-                    label=f"JPEG Baseline ({jpeg_ratio_val:.2f})",
-                )
-
-            if (
-                plot_df["ffc_compression_ratio"].max()
-                / (plot_df["ffc_compression_ratio"].min() + 1e-6)
-                > 10
-            ):
-                plt.yscale("log")
-                plt.ylabel("Compression ratio (log)")
-            else:
-                plt.ylabel("Compression ratio")
-
-            plt.title(f"Impact of {feature} on compression ratio")
-            plt.xlabel(feature)
-            plt.legend()
-            plt.tight_layout()
-            plt.show()
