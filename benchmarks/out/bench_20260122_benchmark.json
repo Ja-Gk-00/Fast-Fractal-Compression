@@ -1,0 +1,344 @@
+{
+    "machine_info": {
+        "node": "DESKTOP-BV41CJ4",
+        "processor": "Intel64 Family 6 Model 158 Stepping 13, GenuineIntel",
+        "machine": "AMD64",
+        "python_compiler": "MSC v.1940 64 bit (AMD64)",
+        "python_implementation": "CPython",
+        "python_implementation_version": "3.12.6",
+        "python_version": "3.12.6",
+        "python_build": [
+            "tags/v3.12.6:a4a2d2b",
+            "Sep  6 2024 20:11:23"
+        ],
+        "release": "10",
+        "system": "Windows",
+        "cpu": {
+            "python_version": "3.12.6.final.0 (64 bit)",
+            "cpuinfo_version": [
+                9,
+                0,
+                0
+            ],
+            "cpuinfo_version_string": "9.0.0",
+            "arch": "X86_64",
+            "bits": 64,
+            "count": 8,
+            "arch_string_raw": "AMD64",
+            "vendor_id_raw": "GenuineIntel",
+            "brand_raw": "Intel(R) Core(TM) i5-9300HF CPU @ 2.40GHz",
+            "hz_advertised_friendly": "2.4000 GHz",
+            "hz_actual_friendly": "2.4000 GHz",
+            "hz_advertised": [
+                2400000000,
+                0
+            ],
+            "hz_actual": [
+                2400000000,
+                0
+            ],
+            "l2_cache_size": 1048576,
+            "stepping": 13,
+            "model": 158,
+            "family": 6,
+            "l3_cache_size": 8388608,
+            "flags": [
+                "3dnow",
+                "3dnowprefetch",
+                "abm",
+                "acpi",
+                "adx",
+                "aes",
+                "apic",
+                "avx",
+                "avx2",
+                "bmi1",
+                "bmi2",
+                "clflush",
+                "clflushopt",
+                "cmov",
+                "cx16",
+                "cx8",
+                "de",
+                "dtes64",
+                "dts",
+                "erms",
+                "est",
+                "f16c",
+                "fma",
+                "fpu",
+                "fxsr",
+                "ht",
+                "hypervisor",
+                "ia64",
+                "invpcid",
+                "lahf_lm",
+                "mca",
+                "mce",
+                "mmx",
+                "movbe",
+                "mpx",
+                "msr",
+                "mtrr",
+                "osxsave",
+                "pae",
+                "pat",
+                "pbe",
+                "pcid",
+                "pclmulqdq",
+                "pdcm",
+                "pge",
+                "pni",
+                "popcnt",
+                "pse",
+                "pse36",
+                "rdrnd",
+                "rdseed",
+                "sep",
+                "serial",
+                "smap",
+                "smep",
+                "ss",
+                "sse",
+                "sse2",
+                "sse4_1",
+                "sse4_2",
+                "ssse3",
+                "tm",
+                "tm2",
+                "tsc",
+                "vme",
+                "xsave",
+                "xtpr"
+            ],
+            "l2_cache_line_size": 256,
+            "l2_cache_associativity": 6
+        }
+    },
+    "commit_info": {
+        "id": "05936f3b8b232598db3f9c0df14716ee8c47111c",
+        "time": "2026-01-12T17:48:23+01:00",
+        "author_time": "2026-01-12T17:48:23+01:00",
+        "dirty": true,
+        "project": "Fast-Fractal-Compression",
+        "branch": "bench_results"
+    },
+    "benchmarks": [
+        {
+            "group": null,
+            "name": "test_bench_ffc_encode_speed[benchmark_0__lena-colour]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_encode_speed[benchmark_0__lena-colour]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='benchmark_0__lena-colour', encode_kwargs={'min_block': 4, 'max_block': 8, 'stride': 12, 'use_quadtree': True, 'max_mse': 0.06, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 64, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': True, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': None, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='encode', image=ImageSpec(name='lena-colour', kind='file', path=WindowsPath('D:/Studia/Magisterskie/M3/Fraktale/projekt2/Fast-Fractal-Compression/tests/test-data/lena-colour.png'), pattern='', channels=0, size=None, seed=0), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "benchmark_0__lena-colour",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "ffc_bytes": 5380,
+                "ffc_compression_ratio": 9.136059479553904
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.037301299999853654,
+                "max": 0.03934789999993882,
+                "mean": 0.038115019999963806,
+                "stddev": 0.0006348624204631146,
+                "rounds": 10,
+                "median": 0.03808689999982562,
+                "iqr": 0.0004257000000507105,
+                "q1": 0.0378221000000849,
+                "q3": 0.03824780000013561,
+                "iqr_outliers": 2,
+                "stddev_outliers": 4,
+                "outliers": "4;2",
+                "ld15iqr": 0.037301299999853654,
+                "hd15iqr": 0.03889049999997951,
+                "ops": 26.236376105822576,
+                "total": 0.38115019999963806,
+                "data": [
+                    0.03784059999998135,
+                    0.03934789999993882,
+                    0.03889049999997951,
+                    0.03820650000011483,
+                    0.03824780000013561,
+                    0.03819349999980659,
+                    0.0378221000000849,
+                    0.037301299999853654,
+                    0.03731969999989815,
+                    0.03798029999984465
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_ffc_compression_rate_and_serialize[benchmark_0__lena-colour]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_ffc_compression_rate_and_serialize[benchmark_0__lena-colour]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='benchmark_0__lena-colour', encode_kwargs={'min_block': 4, 'max_block': 8, 'stride': 12, 'use_quadtree': True, 'max_mse': 0.06, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 64, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': True, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': None, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='encode', image=ImageSpec(name='lena-colour', kind='file', path=WindowsPath('D:/Studia/Magisterskie/M3/Fraktale/projekt2/Fast-Fractal-Compression/tests/test-data/lena-colour.png'), pattern='', channels=0, size=None, seed=0), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "benchmark_0__lena-colour",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "ffc_bytes": 5380,
+                "ffc_compression_ratio": 9.136059479553904
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.03740560000005644,
+                "max": 0.05058710000002975,
+                "mean": 0.041175620000012715,
+                "stddev": 0.004563073043420877,
+                "rounds": 10,
+                "median": 0.03906365000000278,
+                "iqr": 0.005057100000158243,
+                "q1": 0.03796609999994871,
+                "q3": 0.043023200000106954,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.03740560000005644,
+                "hd15iqr": 0.05058710000002975,
+                "ops": 24.28621596953953,
+                "total": 0.41175620000012714,
+                "data": [
+                    0.03740560000005644,
+                    0.043023200000106954,
+                    0.039130999999997584,
+                    0.05058710000002975,
+                    0.04759409999996933,
+                    0.04109979999998359,
+                    0.037595799999962765,
+                    0.03835720000006404,
+                    0.03899630000000798,
+                    0.03796609999994871
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_encode_speed[benchmark_0__lena-colour]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_encode_speed[benchmark_0__lena-colour]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='benchmark_0__lena-colour', encode_kwargs={'min_block': 4, 'max_block': 8, 'stride': 12, 'use_quadtree': True, 'max_mse': 0.06, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 64, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': True, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': None, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='encode', image=ImageSpec(name='lena-colour', kind='file', path=WindowsPath('D:/Studia/Magisterskie/M3/Fraktale/projekt2/Fast-Fractal-Compression/tests/test-data/lena-colour.png'), pattern='', channels=0, size=None, seed=0), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "benchmark_0__lena-colour",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "jpeg_bytes": 7323,
+                "jpeg_compression_ratio": 6.71200327734535,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.00021209999999882712,
+                "max": 0.00025999999979831045,
+                "mean": 0.00022532999996656146,
+                "stddev": 1.515600721989709e-05,
+                "rounds": 10,
+                "median": 0.00021989999993365927,
+                "iqr": 1.8800000134433503e-05,
+                "q1": 0.00021389999983512098,
+                "q3": 0.00023269999996955448,
+                "iqr_outliers": 0,
+                "stddev_outliers": 2,
+                "outliers": "2;0",
+                "ld15iqr": 0.00021209999999882712,
+                "hd15iqr": 0.00025999999979831045,
+                "ops": 4437.935473076813,
+                "total": 0.0022532999996656145,
+                "data": [
+                    0.0002412000001186243,
+                    0.00021960000003673485,
+                    0.00021389999983512098,
+                    0.0002201999998305837,
+                    0.0002188000000842294,
+                    0.00025999999979831045,
+                    0.00023269999996955448,
+                    0.00022100000001046283,
+                    0.00021379999998316634,
+                    0.00021209999999882712
+                ],
+                "iterations": 1
+            }
+        },
+        {
+            "group": null,
+            "name": "test_bench_jpeg_compression_rate[benchmark_0__lena-colour]",
+            "fullname": "benchmarks/test_benchmark_fractal.py::test_bench_jpeg_compression_rate[benchmark_0__lena-colour]",
+            "params": {
+                "bench_item": "UNSERIALIZABLE[BenchItem(name='benchmark_0__lena-colour', encode_kwargs={'min_block': 4, 'max_block': 8, 'stride': 12, 'use_quadtree': True, 'max_mse': 0.06, 'use_buckets': False, 'bucket_count': 1, 'use_s_sets': False, 'topk': 64, 'backend': 'dot', 'lsh_budget': 2048, 'entropy_thresh': 0.0, 'quantized': True, 's_clip': 0.99, 'o_min': -0.5, 'o_max': 1.5, 'pca_dim': 16, 'lsh_planes': 16, 'seed': 0, 'max_domains': None, 'block': None, 'iterations_hint': 8}, decode_kwargs={'iterations': 8}, mode='encode', image=ImageSpec(name='lena-colour', kind='file', path=WindowsPath('D:/Studia/Magisterskie/M3/Fraktale/projekt2/Fast-Fractal-Compression/tests/test-data/lena-colour.png'), pattern='', channels=0, size=None, seed=0), jpeg_quality=90, include_jpeg=True)]"
+            },
+            "param": "benchmark_0__lena-colour",
+            "extra_info": {
+                "orig_bytes": 49152,
+                "jpeg_bytes": 7323,
+                "jpeg_compression_ratio": 6.71200327734535,
+                "jpeg_quality": 90
+            },
+            "options": {
+                "disable_gc": false,
+                "timer": "perf_counter",
+                "min_rounds": 5,
+                "max_time": 1.0,
+                "min_time": 5e-06,
+                "warmup": false
+            },
+            "stats": {
+                "min": 0.0002104000000144879,
+                "max": 0.00023969999983819434,
+                "mean": 0.00021873000002869958,
+                "stddev": 9.018752009471957e-06,
+                "rounds": 10,
+                "median": 0.0002157500000521395,
+                "iqr": 9.59999988481286e-06,
+                "q1": 0.00021250000008876668,
+                "q3": 0.00022209999997357954,
+                "iqr_outliers": 1,
+                "stddev_outliers": 2,
+                "outliers": "2;1",
+                "ld15iqr": 0.0002104000000144879,
+                "hd15iqr": 0.00023969999983819434,
+                "ops": 4571.846568229278,
+                "total": 0.0021873000002869958,
+                "data": [
+                    0.00023969999983819434,
+                    0.00022800000010647636,
+                    0.00022209999997357954,
+                    0.00021679999986190523,
+                    0.00021530000003622263,
+                    0.00021200000014687248,
+                    0.0002162000000680564,
+                    0.00021250000008876668,
+                    0.00021430000015243422,
+                    0.0002104000000144879
+                ],
+                "iterations": 1
+            }
+        }
+    ],
+    "datetime": "2026-01-22T09:41:00.510898+00:00",
+    "version": "5.2.3"
+}
