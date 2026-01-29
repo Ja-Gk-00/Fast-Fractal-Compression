@@ -1,7 +1,8 @@
 import pandas as pd
 import json
 import re
-import plotly.express as px
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def visualize_bench_result(df, features):
@@ -22,45 +23,29 @@ def visualize_bench_result(df, features):
         df_agg = df_agg.sort_values(by=feature)
         df_agg[feature] = df_agg[feature].astype(str)
 
-        fig_time = px.bar(
-            df_agg,
-            x=feature,
-            y="ffc_mean_s",
-            title=f"Impact of {feature.upper()} on mean compression time",
-            labels={feature: f"Feature: {feature}", "ffc_mean_s": "Mean time [s]"},
-            template="plotly_white",
-        )
-        fig_time.update_traces(
-            marker_color="#4682B4",
-            marker_line_color="rgb(8,48,107)",
-            marker_line_width=1.5,
-        )
-        fig_time.update_layout(xaxis={"type": "category"})
-        fig_time.show()
+        # Bar chart for compression time
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.bar(df_agg[feature], df_agg["ffc_mean_s"], color="#4682B4", edgecolor="#08306B", linewidth=1.5)
+        ax.set_xlabel(f"Feature: {feature}")
+        ax.set_ylabel("Mean time [s]")
+        ax.set_title(f"Impact of {feature.upper()} on mean compression time")
+        plt.tight_layout()
+        plt.show()
 
-        fig_ratio = px.line(
-            df_agg,
-            x=feature,
-            y="ffc_compression_ratio",
-            markers=True,
-            title=f"Impact of {feature.upper()} on compression ratio",
-            labels={"ffc_compression_ratio": "Compression ratio"},
-            template="plotly_white",
-        )
-
+        # Line chart for compression ratio
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(df_agg[feature], df_agg["ffc_compression_ratio"], marker='o', linewidth=4, markersize=12, color="#2E4053", label="FFC Compression Ratio")
+        
         if "jpeg_compression_ratio" in df.columns:
             jpeg_avg = df["jpeg_compression_ratio"].mean()
-            fig_ratio.add_hline(
-                y=jpeg_avg,
-                line_dash="dash",
-                line_color="#FF4B4B",
-                annotation_text=f"JPEG Avg ({jpeg_avg:.2f})",
-                annotation_position="bottom right",
-            )
+            ax.axhline(y=jpeg_avg, linestyle="--", color="#FF4B4B", label=f"JPEG Avg ({jpeg_avg:.2f})")
+            ax.legend()
 
-        fig_ratio.update_xaxes(type="category")
-        fig_ratio.update_traces(line_width=4, marker_size=12, line_color="#2E4053")
-        fig_ratio.show()
+        ax.set_xlabel(f"Feature: {feature}")
+        ax.set_ylabel("Compression ratio")
+        ax.set_title(f"Impact of {feature.upper()} on compression ratio")
+        plt.tight_layout()
+        plt.show()
 
     if len(features_list) == 2:
         f1, f2 = features_list
@@ -72,19 +57,27 @@ def visualize_bench_result(df, features):
         df_pivot.index = df_pivot.index.astype(str)
         df_pivot.columns = df_pivot.columns.astype(str)
 
-        fig_heat = px.imshow(
-            df_pivot,
-            labels=dict(x=f2, y=f1, color="Mean time [s]"),
-            x=df_pivot.columns,
-            y=df_pivot.index,
-            aspect="auto",
-            color_continuous_scale="Viridis",
-            title=f"Mean compression time: {f1} vs {f2}",
-            template="plotly_white",
-            text_auto=".3f",
-        )
-        fig_heat.update_layout(xaxis={"type": "category"}, yaxis={"type": "category"})
-        fig_heat.show()
+        fig, ax = plt.subplots(figsize=(10, 8))
+        im = ax.imshow(df_pivot.values, cmap="viridis", aspect="auto")
+        ax.set_xticks(np.arange(len(df_pivot.columns)))
+        ax.set_yticks(np.arange(len(df_pivot.index)))
+        ax.set_xticklabels(df_pivot.columns)
+        ax.set_yticklabels(df_pivot.index)
+        ax.set_xlabel(f2)
+        ax.set_ylabel(f1)
+        ax.set_title(f"Mean compression time: {f1} vs {f2}")
+        
+        # Add text annotations
+        for i in range(len(df_pivot.index)):
+            for j in range(len(df_pivot.columns)):
+                value = df_pivot.values[i, j]
+                if not np.isnan(value):
+                    text = ax.text(j, i, f"{value:.3f}", ha="center", va="center", color="white", fontsize=8)
+        
+        cbar = plt.colorbar(im, ax=ax)
+        cbar.set_label("Mean time [s]")
+        plt.tight_layout()
+        plt.show()
 
 
 def extract_fractal_benchmarks_extended(json_path):
